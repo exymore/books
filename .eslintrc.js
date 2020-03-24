@@ -1,4 +1,5 @@
 module.exports = {
+  extends: ["eslint:recommended", "plugin:vue/recommended"],
   root: true,
   env: {
     browser: true,
@@ -7,16 +8,19 @@ module.exports = {
   parserOptions: {
     parser: 'babel-eslint'
   },
-  extends: [
-    "plugin:vue/recommended",
-    "eslint:recommended",
-    "prettier/vue",
-    "plugin:prettier/recommended"
-  ],
-  // required to lint *.vue files
-  plugins: [
-    'vue'
-  ],
-  // add your custom rules here
-  rules: {}
+  plugins: ['vue'],
+  rules: {
+    "no-undef": "warn",
+    "linebreak-style": ["error", "unix"],
+    "no-use-before-define": "off",
+    "no-unused-vars": "off",
+    "no-console": process.env.NODE_ENV === "production" ? "warn" : "off",
+    "comma-dangle": ["error", "always-multiline"],
+    "vue/component-tags-order": [
+      "error",
+      {
+        order: ["template", "script", "style"],
+      },
+    ],
+  },
 };
