@@ -1,7 +1,9 @@
 module.exports = {
-  extends: ['eslint:recommended', 'plugin:vue/recommended'],
+  "extends": [
+    "plugin:vue/essential"
+  ],
   parserOptions: {
-    ecmaVersion: 2018,
+    ecmaVersion: 2020,
   },
   rules: {
     'no-undef': 'warn',
@@ -10,6 +12,7 @@ module.exports = {
     'no-console': process.env.NODE_ENV === 'production' ? 'warn' : 'off',
     'comma-dangle': ['error', 'always-multiline'],
     'vue/no-unused-vars': 'off',
+    'no-unused-vars': 'off',
     'vue/component-tags-order': [
       'error',
       {

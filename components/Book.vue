@@ -3,20 +3,23 @@
     max-width="300"
     class="card"
   >
-    <div class="bg-wrapper">
-      <v-img
-        class="blurred"
-        height="300px"
-        :src="coverUrl"
-      />
-      <v-img
-        class="white--text align-end"
-        height="200px"
-        :src="coverUrl"
-        contain
-      />
-    </div>
-
+    <nuxt-link
+      :to="previewBookUrl"
+    >
+      <div class="bg-wrapper">
+        <v-img
+          class="blurred"
+          height="300px"
+          :src="coverUrl"
+        />
+        <v-img
+          class="white--text align-end"
+          height="200px"
+          :src="coverUrl"
+          contain
+        />
+      </div>
+    </nuxt-link>
 
     <v-card-title class="title">
       {{ bookName }}
@@ -29,7 +32,7 @@
       <v-btn
         color="purple"
         text
-        :to="bookUrl"
+        :to="readBookUrl"
       >
         Read
       </v-btn>
@@ -67,8 +70,11 @@
       },
     },
     computed: {
-      bookUrl () {
+      readBookUrl () {
         return `/read/${this.bookID}`
+      },
+      previewBookUrl () {
+        return `/books/${this.bookID}`
       },
     },
     methods: {

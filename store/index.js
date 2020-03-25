@@ -9,7 +9,7 @@ export const mutations = {
 };
 
 export const actions = {
-  async nuxtServerInit({ commit }, context) {
+  async nuxtServerInit({ commit }) {
     const { items } = await this.$contentful().getEntries({
       content_type: 'book',
       include: 2,
