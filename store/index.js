@@ -1,7 +1,19 @@
-export const state = () => ({});
+export const state = () => ({
+  books: [],
+});
 
-export const mutations = {};
+export const mutations = {
+  setBooks(state, payload) {
+    state.books = { ...payload };
+  },
+};
 
 export const actions = {
-  async nuxtServerInit({ commit }, { env, res }) {},
+  async nuxtServerInit({ commit }, context) {
+    const { items } = await this.$contentful().getEntries({
+      content_type: 'book',
+      include: 2,
+    });
+    commit('setBooks', items);
+  },
 };

@@ -13,17 +13,21 @@
     "start": "nuxt start"
   },
   "dependencies": {
-    "@nuxtjs/apollo": "^4.0.0-rc19",
+    "@nuxtjs/dotenv": "^1.4.1",
     "@nuxtjs/vuetify": "^1.11.0",
     "@vue/cli-shared-utils": "^4.2.3",
+    "contentful": "^7.14.0",
+    "dotenv": "latest",
     "eslint": "^6.8.0",
-    "eslint-loader": "^3.0.3",
-    "eslint-plugin-vue": "^6.2.2",
-    "graphql-tag": "^2.10.3",
     "nuxt": "^2.0.0",
     "vuetify": "^2.2.11"
   },
   "devDependencies": {
+    "prettier": "^2.0.2",
+    "eslint-config-prettier": "^6.10.1",
+    "eslint-loader": "^3.0.3",
+    "eslint-plugin-prettier": "^3.1.2",
+    "eslint-plugin-vue": "^6.2.2",
     "babel-eslint": "^10.0.1",
     "sass": "^1.19.0",
     "sass-loader": "^8.0.0",

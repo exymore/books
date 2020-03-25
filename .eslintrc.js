@@ -1,25 +1,19 @@
 module.exports = {
-  extends: ["eslint:recommended", "plugin:vue/recommended"],
-  root: true,
-  env: {
-    browser: true,
-    node: true
-  },
+  extends: ['eslint:recommended', 'plugin:vue/recommended'],
   parserOptions: {
-    parser: 'babel-eslint'
+    ecmaVersion: 2018,
   },
-  plugins: ['vue'],
   rules: {
-    "no-undef": "warn",
-    "linebreak-style": ["error", "unix"],
-    "no-use-before-define": "off",
-    "no-unused-vars": "off",
-    "no-console": process.env.NODE_ENV === "production" ? "warn" : "off",
-    "comma-dangle": ["error", "always-multiline"],
-    "vue/component-tags-order": [
-      "error",
+    'no-undef': 'warn',
+    'linebreak-style': ['error', 'unix'],
+    'no-use-before-define': 'off',
+    'no-console': process.env.NODE_ENV === 'production' ? 'warn' : 'off',
+    'comma-dangle': ['error', 'always-multiline'],
+    'vue/no-unused-vars': 'off',
+    'vue/component-tags-order': [
+      'error',
       {
-        order: ["template", "script", "style"],
+        order: ['template', 'script', 'style'],
       },
     ],
   },
