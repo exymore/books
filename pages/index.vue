@@ -1,13 +1,15 @@
 <template>
-  <div>
-    <book
-      v-for="{fields: {bookDescription, bookName, cover}, sys} in books"
-      :key="sys.id"
-      :book-i-d="sys.id"
-      :book-description="bookDescription"
-      :book-name="bookName"
-      :cover-url="cover.fields.file.url"
-    />
+  <div class="d-flex justify-center">
+    <v-col cols="12" sm="3" md="4" lg="3" v-for="{fields: {bookDescription, bookName, cover, cardColor, bookUrl}, sys} in books" :key="sys.id">
+      <book
+        :book-i-d="sys.id"
+        :book-description="bookDescription"
+        :book-name="bookName"
+        :cover-url="cover.fields.file.url"
+        :cardColor="cardColor"
+        :book-url="bookUrl"
+      />
+    </v-col>
   </div>
 </template>
 

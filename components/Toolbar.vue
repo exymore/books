@@ -3,7 +3,7 @@
     :collapse="!collapseOnScroll"
     :collapse-on-scroll="collapseOnScroll"
     absolute
-    color="deep-purple accent-2"
+    color="cyan darken-2"
     dark
   >
     <v-toolbar-title>Books</v-toolbar-title>

@@ -1,48 +1,64 @@
 <template>
   <v-card
-    max-width="300"
+    max-width="320"
     class="card"
+    :color="cardColor || 'cyan darken-2'"
   >
-    <nuxt-link
-      :to="previewBookUrl"
-    >
-      <div class="bg-wrapper">
-        <v-img
-          class="blurred"
-          height="300px"
-          :src="coverUrl"
-        />
-        <v-img
-          class="white--text align-end"
-          height="200px"
-          :src="coverUrl"
-          contain
-        />
-      </div>
-    </nuxt-link>
+    <div class="bg-wrapper">
+      <v-img
+        class="blurred"
+        height="300px"
+        :src="coverUrl"
+      />
+      <v-img
+        class="white--text align-end"
+        height="200px"
+        :src="coverUrl"
+        contain
+      />
+    </div>
 
-    <v-card-title class="title">
+    <v-card-title class="title white--text">
       {{ bookName }}
     </v-card-title>
-    <v-card-subtitle class="pb-0">
-      {{ truncateDescription(bookDescription) }}
-    </v-card-subtitle>
+    <v-expand-transition>
+      <div v-show="!showFullDescription">
+        <v-card-subtitle class="desc white--text">
+          {{ truncateDescription(bookDescription) }}
+        </v-card-subtitle>
+      </div>
+    </v-expand-transition>
+
+    <v-expand-transition>
+      <div v-show="showFullDescription">
+        <v-card-text class="desc white--text">
+          {{bookDescription}}
+        </v-card-text>
+      </div>
+    </v-expand-transition>
 
     <v-card-actions>
       <v-btn
-        color="purple"
         text
+        color="white"
         :to="readBookUrl"
       >
         Read
       </v-btn>
 
       <v-btn
-        color="purple"
+        color="white"
         text
         @click="handleShare"
       >
         Share
+      </v-btn>
+      <v-spacer></v-spacer>
+      <v-btn
+        icon
+        @click="showFullDescription = !showFullDescription"
+      >
+        <v-icon class="white--text">{{ showFullDescription ? 'mdi-chevron-up' : 'mdi-chevron-down' }}</v-icon>
       </v-btn>
     </v-card-actions>
   </v-card>
@@ -68,13 +84,21 @@
         type: String,
         default: '',
       },
-    },
-    computed: {
-      readBookUrl () {
-        return `/read/${this.bookID}`
+      cardColor: {
+        type: String,
+        default: '',
       },
-      previewBookUrl () {
-        return `/books/${this.bookID}`
+      bookUrl: {
+        type: String,
+        default: '',
+      },
+    },
+    data: () => ({
+      showFullDescription: false,
+    }),
+    computed: {
+      readBookUrl() {
+        return `/read/${this.bookID}`;
       },
     },
     methods: {
@@ -86,7 +110,7 @@
       handleShare() {
         if (navigator && navigator.share && window && window.location && window.location.href) {
           navigator.share({
-            title: 'WebShare API Demo',
+            title: 'Books Learn',
             url: `${window.location.href}/books/${this.bookID}`,
           }).catch(console.error);
         }
@@ -100,11 +124,19 @@
     overflow: hidden;
   }
 
+  .desc {
+    padding-top: 0;
+  }
+
+  .title {
+    word-break: break-word !important;
+  }
+
   .blurred {
     box-shadow: none;
     position: absolute;
     top: 0;
-    filter: blur(12px);
+    filter: blur(8px);
     overflow: hidden;
   }
 
