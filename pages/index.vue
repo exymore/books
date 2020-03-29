@@ -1,5 +1,5 @@
 <template>
-  <div class="d-flex justify-center">
+  <div class="d-flex justify-center flex-wrap">
     <v-col
       v-for="{fields: {bookDescription, bookName, cover, cardColor, bookUrl}, sys} in books"
       :key="sys.id"
