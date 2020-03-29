@@ -4,19 +4,21 @@
     class="card"
     :color="cardColor || 'cyan darken-2'"
   >
-    <div class="bg-wrapper">
-      <v-img
-        class="blurred"
-        height="300px"
-        :src="coverUrl"
-      />
-      <v-img
-        class="white--text align-end"
-        height="200px"
-        :src="coverUrl"
-        contain
-      />
-    </div>
+    <nuxt-link :to="readBookUrl">
+      <div class="bg-wrapper">
+        <v-img
+          class="blurred"
+          height="300px"
+          :src="coverUrl"
+        />
+        <v-img
+          class="white--text align-end"
+          height="200px"
+          :src="coverUrl"
+          contain
+        />
+      </div>
+    </nuxt-link>
 
     <v-card-title class="title white--text">
       {{ bookName }}
@@ -32,7 +34,7 @@
     <v-expand-transition>
       <div v-show="showFullDescription">
         <v-card-text class="desc white--text">
-          {{bookDescription}}
+          {{ bookDescription }}
         </v-card-text>
       </div>
     </v-expand-transition>
@@ -43,7 +45,7 @@
         color="white"
         :to="readBookUrl"
       >
-        Read
+        Читать
       </v-btn>
 
       <v-btn
@@ -51,14 +53,19 @@
         text
         @click="handleShare"
       >
-        Share
+        Поделиться
       </v-btn>
-      <v-spacer></v-spacer>
+      <v-spacer />
       <v-btn
+        v-if="isFullDescriptionRequired"
         icon
         @click="showFullDescription = !showFullDescription"
       >
-        <v-icon class="white--text">{{ showFullDescription ? 'mdi-chevron-up' : 'mdi-chevron-down' }}</v-icon>
+        <v-icon
+          class="white--text"
+        >
+          {{ showFullDescription ? 'mdi-chevron-up' : 'mdi-chevron-down' }}
+        </v-icon>
       </v-btn>
     </v-card-actions>
   </v-card>
@@ -94,6 +101,7 @@
       },
     },
     data: () => ({
+      isFullDescriptionRequired: false,
       showFullDescription: false,
     }),
     computed: {
@@ -103,8 +111,11 @@
     },
     methods: {
       truncateDescription(str) {
-        if (str.length >= 150)
+        if (str.length >= 150) {
+          this.isFullDescriptionRequired = true;
           return str.slice(0, 150).trim() + '...';
+        }
+        this.isFullDescriptionRequired = false;
         return str;
       },
       handleShare() {

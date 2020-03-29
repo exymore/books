@@ -1,6 +1,6 @@
 module.exports = {
   "extends": [
-    "plugin:vue/essential"
+    "plugin:vue/recommended"
   ],
   parserOptions: {
     ecmaVersion: 2020,

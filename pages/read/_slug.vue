@@ -1,40 +1,36 @@
 <template>
   <v-container>
-    <div id="book"></div>
+    <div v-html="bookHTML" />
   </v-container>
 </template>
 
 <script>
-  import {VContainer} from 'vuetify/lib'
-  import Epub from 'epubjs'
+  import { VContainer } from 'vuetify/lib';
+  import axios from 'axios';
+
   export default {
     components: {
       VContainer,
     },
-    data () {
+    data() {
       return {
         bookURL: null,
-        book: null,
-      }
+        bookHTML: null,
+      };
     },
     async mounted() {
-      const storageRef = this.$fireStorage.ref().child('mark_tven-the_adventures_of_huckleberry_finn-1490207712.epub');
-      try {
-        this.bookURL = await storageRef.getDownloadURL();
-        this.initReader()
-      } catch (e) {
-        alert(e.message)
-      }
+      const storageRef = this.$fireStorage.ref().child('mark-tven-the-adventures-of-huck/index.html');
+      this.bookURL = await storageRef.getDownloadURL();
+      this.bookHTML = await this.getBook();
     },
     methods: {
-      initReader() {
-        this.book = new Epub(this.bookURL, {});
-        this.rendition = this.book.renderTo('book', {
-          contained: true,
-          height: 400,
-          width: 600,
-        });
-        this.rendition.display()
+      async getBook() {
+        const options = {
+          method: 'GET',
+          url: this.bookURL,
+        };
+        const { data } = await axios(options);
+        return data;
       },
     },
   };

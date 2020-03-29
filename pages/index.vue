@@ -1,12 +1,19 @@
 <template>
   <div class="d-flex justify-center">
-    <v-col cols="12" sm="3" md="4" lg="3" v-for="{fields: {bookDescription, bookName, cover, cardColor, bookUrl}, sys} in books" :key="sys.id">
+    <v-col
+      v-for="{fields: {bookDescription, bookName, cover, cardColor, bookUrl}, sys} in books"
+      :key="sys.id"
+      cols="12"
+      sm="3"
+      md="4"
+      lg="3"
+    >
       <book
         :book-i-d="sys.id"
         :book-description="bookDescription"
         :book-name="bookName"
         :cover-url="cover.fields.file.url"
-        :cardColor="cardColor"
+        :card-color="cardColor"
         :book-url="bookUrl"
       />
     </v-col>
