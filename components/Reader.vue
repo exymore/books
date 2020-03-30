@@ -4,8 +4,8 @@
       color="cyan lighten-4"
       fab
       large
-      @click="prev"
       class="btn"
+      @click="prev"
     >
       <v-icon
         class="white--text"
@@ -21,8 +21,8 @@
       color="cyan lighten-4"
       fab
       large
-      @click="next"
       class="btn"
+      @click="debouncedNext"
     >
       <v-icon
         class="white--text"
@@ -34,7 +34,7 @@
 </template>
 
 <script>
-  import debounce from 'lodash/debounce';
+  import debounce from 'lodash/throttle';
 
   export default {
     name: 'Reader',
@@ -48,15 +48,23 @@
       columnWidth: 0,
       el: null,
     }),
+    watch: {
+      el() {
+        this.debouncedNext();
+        this.debouncedPrev();
+      },
+    },
+    created() {
+      this.debouncedNext = debounce(this.next, 750, { trailing: false });
+      this.debouncedPrev = debounce(this.prev, 750, { trailing: false });
+    },
     mounted() {
       this.el = document.querySelector('.reader-wrapper');
       this.columnWidth = this.el.offsetWidth;
-      this.el.style.columnWidth = this.columnWidth/2
+      this.el.style.columnWidth = this.columnWidth / 2;
     },
     methods: {
       next() {
-        console.log(this.el.scrollLeft);
-        console.log(this.columnWidth);
         this.el.scroll({
           top: 0,
           left: this.el.scrollLeft + this.columnWidth + 16,
@@ -64,8 +72,6 @@
         });
       },
       prev() {
-        console.log(this.el.scrollLeft);
-        console.log(this.columnWidth);
         this.el.scroll({
           top: 0,
           left: this.el.scrollLeft - this.columnWidth - 16,
@@ -80,9 +86,11 @@
   .btn:first-child {
     margin-right: 48px;
   }
+
   .btn:last-child {
     margin-left: 48px;
   }
+
   .container {
     width: 100%;
     display: flex;
