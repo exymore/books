@@ -1,22 +1,23 @@
 <template>
-  <v-container>
-    <div v-html="bookHTML.value" />
-  </v-container>
+  <reader :readerHtml="bookHTML.value" />
 </template>
 
 <script>
-  import { VContainer } from 'vuetify/lib';
+  import Reader from '../../components/Reader'
   import axios from 'axios';
   import DBApi from '@/api/idb';
 
   export default {
     components: {
-      VContainer,
+      Reader,
     },
     data() {
       return {
         book: null,
-        bookHTML: {id:null,value:null},
+        bookHTML: {
+          id: null,
+          value: null,
+          },
       };
     },
     async mounted() {
@@ -60,10 +61,10 @@
           const imgName = match.slice(0, -1).replace('src="images/', '');
           const imageUrl = await this.getImageUrl(imgName);
           return match.replace(`images/${imgName}`, imageUrl);
-        }
+        };
 
-        const HTMLWithInjectedStyles = HTML.replace('href="style.css"', `href="${await this.getCSSUrl()}"`);
-        return await this.replaceAsync(HTMLWithInjectedStyles, srcRegex, replaceSrc)
+        // const HTMLWithInjectedStyles = HTML.replace('href="style.css"', `href="${await this.getCSSUrl()}"`);
+        return await this.replaceAsync(HTML, srcRegex, replaceSrc)
       },
       async replaceAsync(str, regex, fn) {
           const promises = [];
