@@ -1,43 +1,39 @@
 <template>
   <div class="container">
-    <v-btn
-      color="cyan lighten-4"
-      fab
-      large
-      class="btn"
-      @click="prev"
-    >
-      <v-icon
-        class="white--text"
-      >
-        {{ 'mdi-chevron-left' }}
-      </v-icon>
-    </v-btn>
+    <reader-action-button
+      :icon="'mdi-chevron-left'"
+      :direction="'prev'"
+      @clickEffect="clickEffect"
+      @touchEffect="touchEffect"
+    />
     <div
+      v-touch:swipe.left="() => touchEffect('left')"
+      v-touch:swipe.right="() => touchEffect('right')"
       class="reader-wrapper"
       v-html="readerHtml"
     />
-    <v-btn
-      color="cyan lighten-4"
-      fab
-      large
-      class="btn"
-      @click="debouncedNext"
-    >
-      <v-icon
-        class="white--text"
-      >
-        {{ 'mdi-chevron-right' }}
-      </v-icon>
-    </v-btn>
+    <reader-action-button
+      :icon="'mdi-chevron-right'"
+      :direction="'next'"
+      @clickEffect="clickEffect"
+      @touchEffect="touchEffect"
+    />
   </div>
 </template>
 
 <script>
   import debounce from 'lodash/throttle';
+  import ReaderActionButton from './ReaderActionButton';
+  import Vue from 'vue';
+  import Vue2TouchEvents from 'vue2-touch-events';
+
+  Vue.use(Vue2TouchEvents);
 
   export default {
     name: 'Reader',
+    components: {
+      ReaderActionButton,
+    },
     props: {
       readerHtml: {
         type: String,
@@ -48,10 +44,10 @@
       columnWidth: 0,
       el: null,
     }),
-    watch: {
-      el() {
-        this.debouncedNext();
-        this.debouncedPrev();
+    computed: {
+      isMobile() {
+          if (process.client) return document.documentElement.clientWidth <= 960;
+          return false;
       },
     },
     created() {
@@ -78,19 +74,21 @@
           behavior: 'smooth',
         });
       },
+      clickEffect(e) {
+        if (e === 'next') this.debouncedNext();
+        else if (e === 'prev') this.debouncedPrev();
+      },
+      touchEffect(e) {
+        if (this.isMobile) {
+          if (e === 'left') this.debouncedNext();
+          else if (e === 'right') this.debouncedPrev();
+        }
+      },
     },
   };
 </script>
 
 <style scoped>
-  .btn:first-child {
-    margin-right: 48px;
-  }
-
-  .btn:last-child {
-    margin-left: 48px;
-  }
-
   .container {
     width: 100%;
     display: flex;
@@ -106,8 +104,22 @@
     column-fill: balance;
     column-span: all;
     overflow-x: hidden;
-    column-count: 2;
+    column-count: 1;
     column-width: 35vw;
     display: block;
+  }
+
+  @media (max-width: 960px) {
+    .reader-wrapper {
+      column-width: 80vw;
+      width: 80vw;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .reader-wrapper {
+      column-width: 90vw;
+      width: 90vw;
+    }
   }
 </style>

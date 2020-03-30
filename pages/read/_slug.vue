@@ -1,5 +1,21 @@
 <template>
-  <reader :readerHtml="bookHTML.value" />
+  <div>
+    <v-flex
+      style="text-align: center"
+      grow
+      xs12
+    >
+      <v-progress-linear
+        v-if="loading"
+        indeterminate
+        color="#D39429"
+      />
+    </v-flex>
+    <reader
+      v-if="!loading"
+      :reader-html="bookHTML.value"
+    />
+  </div>
 </template>
 
 <script>
@@ -13,6 +29,7 @@
     },
     data() {
       return {
+        loading: true,
         book: null,
         bookHTML: {
           id: null,
@@ -30,6 +47,7 @@
         await DBApi.save({ id: this.book.sys.id, value: procceededHTML });
       }
       this.bookHTML = await DBApi.getByKey(this.book.sys.id);
+      this.loading = false;
     },
     methods: {
       async downloadBook(bookURL) {
