@@ -75,6 +75,7 @@
       },
       async processDocument(HTML) {
         const srcRegex = new RegExp('src\s*=\s*"(.+?)"', "g");
+
         const replaceSrc = async match => {
           const imgName = match.slice(0, -1).replace('src="images/', '');
           const imageUrl = await this.getImageUrl(imgName);

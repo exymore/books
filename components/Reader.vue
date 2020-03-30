@@ -1,5 +1,7 @@
 <template>
-  <div class="container">
+  <div
+    class="container"
+  >
     <reader-action-button
       :icon="'mdi-chevron-left'"
       :direction="'prev'"
@@ -7,6 +9,7 @@
       @touchEffect="touchEffect"
     />
     <div
+      ref="reader"
       v-touch:swipe.left="() => touchEffect('left')"
       v-touch:swipe.right="() => touchEffect('right')"
       class="reader-wrapper"
@@ -45,9 +48,15 @@
       el: null,
     }),
     computed: {
+      screenSize() {
+        return {
+          width: document.documentElement.clientWidth,
+          height: document.documentElement.clientHeight,
+        };
+      },
       isMobile() {
-          if (process.client) return document.documentElement.clientWidth <= 960;
-          return false;
+        if (process.client) return this.screenSize.width <= 960;
+        return false;
       },
     },
     created() {
@@ -55,9 +64,13 @@
       this.debouncedPrev = debounce(this.prev, 750, { trailing: false });
     },
     mounted() {
-      this.el = document.querySelector('.reader-wrapper');
+      this.el = this.$refs.reader;
       this.columnWidth = this.el.offsetWidth;
-      this.el.style.columnWidth = this.columnWidth / 2;
+      this.$nextTick(() => {
+        window.addEventListener('load', () => {
+          this.normalizeImagesSize();
+        });
+      });
     },
     methods: {
       next() {
@@ -83,6 +96,17 @@
           if (e === 'left') this.debouncedNext();
           else if (e === 'right') this.debouncedPrev();
         }
+      },
+      normalizeImagesSize() {
+        const images = document.querySelectorAll('img');
+
+        images.forEach(image => {
+          if (image.width && image.width >= this.screenSize.width - 60) {
+            image.width = this.screenSize.width - 60;
+          } else if (image.height && image.height >= this.screenSize.height - 60) {
+            image.height = this.screenSize.height - 60;
+          }
+        });
       },
     },
   };
