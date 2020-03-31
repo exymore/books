@@ -1,26 +1,32 @@
 <template>
-  <div
-    class="container"
-  >
-    <reader-action-button
-      :icon="'mdi-chevron-left'"
-      :direction="'prev'"
-      @clickEffect="clickEffect"
-      @touchEffect="touchEffect"
+  <div>
+    <reader-controls
+      @toggleTextAlign="toggleTextAlign"
     />
     <div
-      ref="reader"
-      v-touch:swipe.left="() => touchEffect('left')"
-      v-touch:swipe.right="() => touchEffect('right')"
-      class="reader-wrapper"
-      v-html="readerHtml"
-    />
-    <reader-action-button
-      :icon="'mdi-chevron-right'"
-      :direction="'next'"
-      @clickEffect="clickEffect"
-      @touchEffect="touchEffect"
-    />
+      class="container"
+    >
+      <reader-action-button
+        :icon="'mdi-chevron-left'"
+        :direction="'prev'"
+        @clickEffect="clickEffect"
+        @touchEffect="touchEffect"
+      />
+      <div
+        ref="reader"
+        v-touch:swipe.left="() => touchEffect('left')"
+        v-touch:swipe.right="() => touchEffect('right')"
+        :style="styleObject"
+        class="reader-wrapper times"
+        v-html="readerHtml"
+      />
+      <reader-action-button
+        :icon="'mdi-chevron-right'"
+        :direction="'next'"
+        @clickEffect="clickEffect"
+        @touchEffect="touchEffect"
+      />
+    </div>
   </div>
 </template>
 
@@ -29,6 +35,8 @@
   import ReaderActionButton from './ReaderActionButton';
   import Vue from 'vue';
   import Vue2TouchEvents from 'vue2-touch-events';
+  import ReaderControls from './ReaderControls';
+  import { bgColorsEnum, fontsEnum, fontSizeEnum, textAlignEnum } from '../enums';
 
   Vue.use(Vue2TouchEvents);
 
@@ -36,6 +44,7 @@
     name: 'Reader',
     components: {
       ReaderActionButton,
+      ReaderControls,
     },
     props: {
       readerHtml: {
@@ -46,6 +55,12 @@
     data: () => ({
       columnWidth: 0,
       el: null,
+      styleObject: {
+        backgroundColor: bgColorsEnum.white,
+        fontFamily: fontsEnum.times,
+        fontSize: fontSizeEnum['16'],
+        textAlign: textAlignEnum.justify,
+      },
     }),
     computed: {
       screenSize() {
@@ -64,10 +79,35 @@
       this.debouncedPrev = debounce(this.prev, 750, { trailing: false });
     },
     mounted() {
+      this.configureStyling();
       this.el = this.$refs.reader;
       this.columnWidth = this.el.offsetWidth;
     },
     methods: {
+      configureStyling() {
+        const textAlign = this.getStyle('textAlign');
+        if (textAlign) {
+          this.styleObject.textAlign = textAlign;
+        } else {
+          this.saveStyle('textAlign', this.styleObject.textAlign);
+        }
+      },
+      saveStyle(k, v) {
+        localStorage.setItem(k, v);
+      },
+      getStyle(k) {
+        if (process.client && localStorage) {
+          const result = localStorage.getItem(k);
+          if (result) {
+            return result;
+          }
+          return null;
+        }
+      },
+      toggleTextAlign(e) {
+        this.styleObject.textAlign = textAlignEnum[Object.keys(textAlignEnum)[e]];
+        this.saveStyle('textAlign', textAlignEnum[Object.keys(textAlignEnum)[e]]);
+      },
       next() {
         this.el.scroll({
           top: 0,
@@ -103,11 +143,24 @@
     flex-direction: row;
     align-items: center;
     justify-content: center;
+    min-height: 100%;
   }
 
   .reader-wrapper >>> img {
     max-height: 100%;
     max-width: 100%;
+  }
+
+  .reader-wrapper >>> p {
+    margin: 0;
+  }
+
+  .reader-wrapper >>> .title {
+    font-size: inherit !important;
+    font-family: inherit !important;
+    font-weight: inherit !important;
+    line-height: inherit !important;
+    letter-spacing: inherit !important;
   }
 
   .reader-wrapper {
