@@ -66,11 +66,6 @@
     mounted() {
       this.el = this.$refs.reader;
       this.columnWidth = this.el.offsetWidth;
-      this.$nextTick(() => {
-        window.addEventListener('load', () => {
-          this.normalizeImagesSize();
-        });
-      });
     },
     methods: {
       next() {
@@ -97,17 +92,6 @@
           else if (e === 'right') this.debouncedPrev();
         }
       },
-      normalizeImagesSize() {
-        const images = document.querySelectorAll('img');
-
-        images.forEach(image => {
-          if (image.width && image.width >= this.screenSize.width - 60) {
-            image.width = this.screenSize.width - 60;
-          } else if (image.height && image.height >= this.screenSize.height - 60) {
-            image.height = this.screenSize.height - 60;
-          }
-        });
-      },
     },
   };
 </script>
@@ -119,6 +103,11 @@
     flex-direction: row;
     align-items: center;
     justify-content: center;
+  }
+
+  .reader-wrapper >>> img {
+    max-height: 100%;
+    max-width: 100%;
   }
 
   .reader-wrapper {
