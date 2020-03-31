@@ -65,6 +65,9 @@
       },
     }),
     computed: {
+      fontSizeInPixels() {
+        return Number(this.styleObject.fontSize.replace('px', ''));
+      },
       screenSize() {
         return {
           width: document.documentElement.clientWidth,
@@ -141,14 +144,14 @@
       next() {
         this.el.scroll({
           top: 0,
-          left: this.el.scrollLeft + this.columnWidth + 16,
+          left: this.el.scrollLeft + this.columnWidth + this.fontSizeInPixels,
           behavior: 'smooth',
         });
       },
       prev() {
         this.el.scroll({
           top: 0,
-          left: this.el.scrollLeft - this.columnWidth - 16,
+          left: this.el.scrollLeft - this.columnWidth - this.fontSizeInPixels,
           behavior: 'smooth',
         });
       },
