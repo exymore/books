@@ -2,6 +2,8 @@
   <div>
     <reader-controls
       @toggleTextAlign="toggleTextAlign"
+      @increaseFontSize="increaseFontSize"
+      @decreaseFontSize="decreaseFontSize"
     />
     <div
       class="container"
@@ -35,7 +37,7 @@
   import ReaderActionButton from './ReaderActionButton';
   import Vue from 'vue';
   import Vue2TouchEvents from 'vue2-touch-events';
-  import ReaderControls from './ReaderControls';
+  import ReaderControls from './ReaderControls/index';
   import { bgColorsEnum, fontsEnum, fontSizeEnum, textAlignEnum } from '../enums';
 
   Vue.use(Vue2TouchEvents);
@@ -84,13 +86,19 @@
       this.columnWidth = this.el.offsetWidth;
     },
     methods: {
+      // Styles
       configureStyling() {
         const textAlign = this.getStyle('textAlign');
-        if (textAlign) {
-          this.styleObject.textAlign = textAlign;
-        } else {
+        if (!textAlign) {
           this.saveStyle('textAlign', this.styleObject.textAlign);
         }
+        else this.styleObject.textAlign = textAlign;
+
+        const fontSize = this.getStyle('fontSize');
+        if (!fontSize) {
+          this.saveStyle('fontSize', this.styleObject.fontSize);
+        }
+        else this.styleObject.fontSize = fontSize;
       },
       saveStyle(k, v) {
         localStorage.setItem(k, v);
@@ -104,10 +112,32 @@
           return null;
         }
       },
+
+      // Styles Togglers
       toggleTextAlign(e) {
         this.styleObject.textAlign = textAlignEnum[Object.keys(textAlignEnum)[e]];
         this.saveStyle('textAlign', textAlignEnum[Object.keys(textAlignEnum)[e]]);
       },
+      increaseFontSize() {
+        const maxFontSize = Math.max.apply(null, Object.keys(fontSizeEnum));
+        if (this.styleObject.fontSize !== `${maxFontSize}px`) {
+          const nextSize = Object.values(fontSizeEnum)[Object.entries(fontSizeEnum)
+            .findIndex(el => el[1] === this.styleObject.fontSize) + 1];
+          this.styleObject.fontSize = nextSize;
+          this.saveStyle('fontSize', nextSize);
+        }
+      },
+      decreaseFontSize() {
+        const minFontSize = Math.min.apply(null, Object.keys(fontSizeEnum));
+        if (this.styleObject.fontSize !== `${minFontSize}px`) {
+          const nextSize = Object.values(fontSizeEnum)[Object.entries(fontSizeEnum)
+            .findIndex(el => el[1] === this.styleObject.fontSize) - 1];
+          this.styleObject.fontSize = nextSize;
+          this.saveStyle('fontSize', nextSize);
+        }
+      },
+
+      // Reader controls
       next() {
         this.el.scroll({
           top: 0,
