@@ -14,6 +14,7 @@
     <reader
       v-if="!loading"
       :reader-html="bookHTML.value"
+      :book-id="bookHTML.id"
     />
   </div>
 </template>

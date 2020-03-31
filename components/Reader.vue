@@ -53,6 +53,10 @@
         type: String,
         default: '',
       },
+      bookId: {
+        type: String,
+        default: '',
+      },
     },
     data: () => ({
       columnWidth: 0,
@@ -63,13 +67,10 @@
         fontSize: fontSizeEnum['16'],
         textAlign: textAlignEnum.justify,
       },
-      pageNumber: 1,
+      currentPageNumber: 1,
       pagesCount: 0,
     }),
     computed: {
-      fontSizeInPixels() {
-        return Number(this.styleObject.fontSize.replace('px', ''));
-      },
       screenSize() {
         return {
           width: document.documentElement.clientWidth,
@@ -82,18 +83,34 @@
       },
     },
     watch: {
-      pageNumber: {
+      currentPageNumber: {
         handler(val, oldVal) {
+          this.saveToStorage(this.bookId, Number(this.currentPageNumber));
           const isNext = val > oldVal;
           const scrollLength = isNext ?
-            this.el.scrollLeft + ((this.columnWidth + this.fontSizeInPixels) * (val - oldVal)) :
-            this.el.scrollLeft - ((this.columnWidth + this.fontSizeInPixels) * (oldVal - val));
+            this.el.scrollLeft + ((this.columnWidth + this.fontSizeNumeric(this.styleObject.fontSize)) * (val - oldVal)) :
+            this.el.scrollLeft - ((this.columnWidth + this.fontSizeNumeric(this.styleObject.fontSize)) * (oldVal - val));
           this.el.scroll({
             top: 0,
             left: scrollLength,
-            behavior: 'smooth',
+            behavior: Math.abs(val - oldVal) > 1 ? 'auto' : 'smooth',
           });
         },
+      },
+      styleObject: {
+        handler(val, oldVal) {
+          const diff = this.fontSizeNumeric(val.fontSize) - this.fontSizeNumeric(oldVal.fontSize);
+          if (diff) {
+            let scrollLength = 0;
+            if (diff > 0 ) scrollLength = this.el.scrollLeft + this.columnWidth + this.fontSizeNumeric(val.fontSize);
+            if (diff < 0 ) scrollLength = this.el.scrollLeft + this.columnWidth - this.fontSizeNumeric(val.fontSize);
+            this.el.scroll({
+              top: 0,
+              left: scrollLength,
+            });
+          }
+        },
+        deep: true,
       },
     },
     created() {
@@ -101,11 +118,20 @@
       this.debouncedPrev = debounce(this.prev, 500, { trailing: false });
     },
     mounted() {
+      this.configureNavigation();
       this.configureStyling();
       this.el = this.$refs.reader;
       this.columnWidth = this.el.offsetWidth;
     },
     methods: {
+      // Navigation
+      configureNavigation() {
+        const page = this.getFromStorage(this.bookId);
+        if (!page) {
+          this.saveToStorage(this.bookId, Number(this.currentPageNumber));
+        } else this.currentPageNumber = Number(page);
+      },
+
       // Styles
       configureStyling() {
         const textAlign = this.getFromStorage('textAlign');
@@ -133,7 +159,7 @@
 
       // Styles Togglers
       toggleTextAlign(e) {
-        this.styleObject.textAlign = textAlignEnum[Object.keys(textAlignEnum)[e]];
+        this.styleObject = { ...this.styleObject, textAlign: textAlignEnum[Object.keys(textAlignEnum)[e]] };
         this.saveToStorage('textAlign', textAlignEnum[Object.keys(textAlignEnum)[e]]);
       },
       increaseFontSize() {
@@ -141,7 +167,7 @@
         if (this.styleObject.fontSize !== `${maxFontSize}px`) {
           const nextSize = Object.values(fontSizeEnum)[Object.entries(fontSizeEnum)
             .findIndex(el => el[1] === this.styleObject.fontSize) + 1];
-          this.styleObject.fontSize = nextSize;
+          this.styleObject = { ...this.styleObject, fontSize: nextSize };
           this.saveToStorage('fontSize', nextSize);
         }
       },
@@ -150,11 +176,10 @@
         if (this.styleObject.fontSize !== `${minFontSize}px`) {
           const nextSize = Object.values(fontSizeEnum)[Object.entries(fontSizeEnum)
             .findIndex(el => el[1] === this.styleObject.fontSize) - 1];
-          this.styleObject.fontSize = nextSize;
+          this.styleObject = { ...this.styleObject, fontSize: nextSize };
           this.saveToStorage('fontSize', nextSize);
         }
       },
-
       // Reader controls
       next() {
         this.scrollPage(1);
@@ -163,8 +188,8 @@
         this.scrollPage(-1);
       },
       scrollPage(num) {
-        if (!(num < 0 && this.pageNumber === 1) && !(num > 0 && this.pageNumber === this.pagesCount)){
-          this.pageNumber += num;
+        if (!(num < 0 && this.currentPageNumber === 1) && !(num > 0 && this.currentPageNumber === this.pagesCount)) {
+          this.currentPageNumber += Number(num);
         }
       },
       clickEffect(e) {
@@ -176,6 +201,11 @@
           if (e === 'left') this.debouncedNext();
           else if (e === 'right') this.debouncedPrev();
         }
+      },
+
+      // Helpers
+      fontSizeNumeric(val) {
+        return Number(val.replace('px', ''));
       },
     },
   };
