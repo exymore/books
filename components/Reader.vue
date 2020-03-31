@@ -97,8 +97,8 @@
       },
     },
     created() {
-      this.debouncedNext = debounce(this.next, 750, { trailing: false });
-      this.debouncedPrev = debounce(this.prev, 750, { trailing: false });
+      this.debouncedNext = debounce(this.next, 500, { trailing: false });
+      this.debouncedPrev = debounce(this.prev, 500, { trailing: false });
     },
     mounted() {
       this.configureStyling();
