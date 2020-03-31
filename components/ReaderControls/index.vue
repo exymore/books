@@ -10,6 +10,7 @@
       <v-btn
         text
         v-on="on"
+        class="format-icon"
       >
         <v-icon>
           mdi-format-letter-case-lower
@@ -42,6 +43,14 @@
 </script>
 
 <style scoped>
+  .format-icon {
+    height: 60px!important;
+  }
+  .format-icon >>> .v-icon {
+    font-size: 48px;
+    color: #505050 !important;
+  }
+
   .v-list >>> .v-icon {
     font-size: 20px;
     color: #505050 !important;
@@ -52,5 +61,14 @@
     justify-content: center;
     align-items: center;
     flex-direction: column;
+  }
+
+  @media (max-width: 960px) {
+    .format-icon {
+      height: 42px!important;
+    }
+    .format-icon >>> .v-icon {
+      font-size: 36px;
+    }
   }
 </style>
