@@ -63,6 +63,8 @@
         fontSize: fontSizeEnum['16'],
         textAlign: textAlignEnum.justify,
       },
+      pageNumber: 1,
+      pagesCount: 0,
     }),
     computed: {
       fontSizeInPixels() {
@@ -79,6 +81,21 @@
         return false;
       },
     },
+    watch: {
+      pageNumber: {
+        handler(val, oldVal) {
+          const isNext = val > oldVal;
+          const scrollLength = isNext ?
+            this.el.scrollLeft + ((this.columnWidth + this.fontSizeInPixels) * (val - oldVal)) :
+            this.el.scrollLeft - ((this.columnWidth + this.fontSizeInPixels) * (oldVal - val));
+          this.el.scroll({
+            top: 0,
+            left: scrollLength,
+            behavior: 'smooth',
+          });
+        },
+      },
+    },
     created() {
       this.debouncedNext = debounce(this.next, 750, { trailing: false });
       this.debouncedPrev = debounce(this.prev, 750, { trailing: false });
@@ -91,22 +108,20 @@
     methods: {
       // Styles
       configureStyling() {
-        const textAlign = this.getStyle('textAlign');
+        const textAlign = this.getFromStorage('textAlign');
         if (!textAlign) {
-          this.saveStyle('textAlign', this.styleObject.textAlign);
-        }
-        else this.styleObject.textAlign = textAlign;
+          this.saveToStorage('textAlign', this.styleObject.textAlign);
+        } else this.styleObject.textAlign = textAlign;
 
-        const fontSize = this.getStyle('fontSize');
+        const fontSize = this.getFromStorage('fontSize');
         if (!fontSize) {
-          this.saveStyle('fontSize', this.styleObject.fontSize);
-        }
-        else this.styleObject.fontSize = fontSize;
+          this.saveToStorage('fontSize', this.styleObject.fontSize);
+        } else this.styleObject.fontSize = fontSize;
       },
-      saveStyle(k, v) {
+      saveToStorage(k, v) {
         localStorage.setItem(k, v);
       },
-      getStyle(k) {
+      getFromStorage(k) {
         if (process.client && localStorage) {
           const result = localStorage.getItem(k);
           if (result) {
@@ -119,7 +134,7 @@
       // Styles Togglers
       toggleTextAlign(e) {
         this.styleObject.textAlign = textAlignEnum[Object.keys(textAlignEnum)[e]];
-        this.saveStyle('textAlign', textAlignEnum[Object.keys(textAlignEnum)[e]]);
+        this.saveToStorage('textAlign', textAlignEnum[Object.keys(textAlignEnum)[e]]);
       },
       increaseFontSize() {
         const maxFontSize = Math.max.apply(null, Object.keys(fontSizeEnum));
@@ -127,7 +142,7 @@
           const nextSize = Object.values(fontSizeEnum)[Object.entries(fontSizeEnum)
             .findIndex(el => el[1] === this.styleObject.fontSize) + 1];
           this.styleObject.fontSize = nextSize;
-          this.saveStyle('fontSize', nextSize);
+          this.saveToStorage('fontSize', nextSize);
         }
       },
       decreaseFontSize() {
@@ -136,24 +151,21 @@
           const nextSize = Object.values(fontSizeEnum)[Object.entries(fontSizeEnum)
             .findIndex(el => el[1] === this.styleObject.fontSize) - 1];
           this.styleObject.fontSize = nextSize;
-          this.saveStyle('fontSize', nextSize);
+          this.saveToStorage('fontSize', nextSize);
         }
       },
 
       // Reader controls
       next() {
-        this.el.scroll({
-          top: 0,
-          left: this.el.scrollLeft + this.columnWidth + this.fontSizeInPixels,
-          behavior: 'smooth',
-        });
+        this.scrollPage(1);
       },
       prev() {
-        this.el.scroll({
-          top: 0,
-          left: this.el.scrollLeft - this.columnWidth - this.fontSizeInPixels,
-          behavior: 'smooth',
-        });
+        this.scrollPage(-1);
+      },
+      scrollPage(num) {
+        if (!(num < 0 && this.pageNumber === 1) && !(num > 0 && this.pageNumber === this.pagesCount)){
+          this.pageNumber += num;
+        }
       },
       clickEffect(e) {
         if (e === 'next') this.debouncedNext();

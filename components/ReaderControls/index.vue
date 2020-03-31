@@ -8,11 +8,12 @@
   >
     <template v-slot:activator="{ on }">
       <v-btn
-        color="indigo"
-        dark
+        text
         v-on="on"
       >
-        Menu as Popover
+        <v-icon>
+          mdi-format-letter-case-lower
+        </v-icon>
       </v-btn>
     </template>
 
@@ -27,7 +28,6 @@
 </template>
 
 <script>
-  import { bgColorsEnum, fontsEnum, fontSizeEnum, textAlignEnum } from '../../enums';
   import TextAlign from './TextAlign';
   import FontSize from './FontSize';
 
