@@ -108,6 +108,8 @@
     created() {
       this.debouncedNext = debounce(this.next, 500, { trailing: false });
       this.debouncedPrev = debounce(this.prev, 500, { trailing: false });
+      this.debouncedIncreaseFont = debounce(this._increaseFontSize, 1000, { trailing: false });
+      this.debouncedDecreaseFont = debounce(this._decreaseFontSize, 1000, { trailing: false });
     },
     mounted() {
       this.configureNavigation();
@@ -115,12 +117,12 @@
     },
     methods: {
       eventCB() {
-        const rect = this.$refs.reader.children[2].getBoundingClientRect();
+        const rect = [...this.$refs.reader.children].find(el => (el.tagName === 'DIV' || el.tagName === 'div')).getBoundingClientRect();
         let newBookLength;
         if (rect.height > rect.width) newBookLength = rect.height;
         else newBookLength = rect.width;
-        
-        console.log(newBookLength);
+
+        console.log(newBookLength)
         if (this.bookWidth === newBookLength) {
           clearInterval(this.widthTimer);
           this.pagesCount = Math.round(this.bookWidth / (this.columnWidth + this.fontSizeNumeric(this.styleObject.fontSize)));
@@ -158,8 +160,15 @@
         this.saveToStorage('textAlign', textAlignEnum[Object.keys(textAlignEnum)[e]]);
       },
       increaseFontSize() {
+        this.debouncedIncreaseFont();
+      },
+      decreaseFontSize() {
+        this.debouncedDecreaseFont();
+      },
+      _increaseFontSize() {
         const maxFontSize = Math.max.apply(null, Object.keys(fontSizeEnum));
         if (this.styleObject.fontSize !== `${maxFontSize}px`) {
+
           this.widthTimer = setInterval(this.eventCB, 500);
           const nextSize = Object.values(fontSizeEnum)[Object.entries(fontSizeEnum)
             .findIndex(el => el[1] === this.styleObject.fontSize) + 1];
@@ -167,7 +176,7 @@
           this.saveToStorage('fontSize', nextSize);
         }
       },
-      decreaseFontSize() {
+      _decreaseFontSize() {
         const minFontSize = Math.min.apply(null, Object.keys(fontSizeEnum));
         if (this.styleObject.fontSize !== `${minFontSize}px`) {
           this.widthTimer = setInterval(this.eventCB, 500);
@@ -177,6 +186,7 @@
           this.saveToStorage('fontSize', nextSize);
         }
       },
+
       // Reader controls
       next() {
         this.scrollPage(1);
