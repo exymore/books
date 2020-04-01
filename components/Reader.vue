@@ -115,13 +115,17 @@
     },
     methods: {
       eventCB() {
-        const newWidth = this.$refs.reader.children[2].getBoundingClientRect().width;
-        console.log(newWidth);
-        if (this.bookWidth === newWidth) {
+        const rect = this.$refs.reader.children[2].getBoundingClientRect();
+        let newBookLength;
+        if (rect.height > rect.width) newBookLength = rect.height;
+        else newBookLength = rect.width;
+        
+        console.log(newBookLength);
+        if (this.bookWidth === newBookLength) {
           clearInterval(this.widthTimer);
           this.pagesCount = Math.round(this.bookWidth / (this.columnWidth + this.fontSizeNumeric(this.styleObject.fontSize)));
           this.pagesCountLoading = false;
-        } else this.bookWidth = newWidth;
+        } else this.bookWidth = newBookLength;
       },
       // Navigation
       configureNavigation() {
