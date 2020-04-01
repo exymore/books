@@ -67,8 +67,15 @@
         fontSize: fontSizeEnum['16'],
         textAlign: textAlignEnum.justify,
       },
+
+      pagesCountLoading: true,
       currentPageNumber: 1,
       pagesCount: 0,
+      bookWidth: 0,
+      progress: 0,
+
+      widthTimer: () => {
+      },
     }),
     computed: {
       screenSize() {
@@ -97,21 +104,6 @@
           });
         },
       },
-      styleObject: {
-        handler(val, oldVal) {
-          const diff = this.fontSizeNumeric(val.fontSize) - this.fontSizeNumeric(oldVal.fontSize);
-          if (diff) {
-            let scrollLength = 0;
-            if (diff > 0 ) scrollLength = this.el.scrollLeft + this.columnWidth + this.fontSizeNumeric(val.fontSize);
-            if (diff < 0 ) scrollLength = this.el.scrollLeft + this.columnWidth - this.fontSizeNumeric(val.fontSize);
-            this.el.scroll({
-              top: 0,
-              left: scrollLength,
-            });
-          }
-        },
-        deep: true,
-      },
     },
     created() {
       this.debouncedNext = debounce(this.next, 500, { trailing: false });
@@ -120,12 +112,23 @@
     mounted() {
       this.configureNavigation();
       this.configureStyling();
-      this.el = this.$refs.reader;
-      this.columnWidth = this.el.offsetWidth;
     },
     methods: {
+      eventCB() {
+        const newWidth = this.$refs.reader.children[2].getBoundingClientRect().width;
+        console.log(newWidth);
+        if (this.bookWidth === newWidth) {
+          clearInterval(this.widthTimer);
+          this.pagesCount = Math.round(this.bookWidth / (this.columnWidth + this.fontSizeNumeric(this.styleObject.fontSize)));
+          this.pagesCountLoading = false;
+        } else this.bookWidth = newWidth;
+      },
       // Navigation
       configureNavigation() {
+        this.el = this.$refs.reader;
+        this.columnWidth = this.el.offsetWidth;
+        this.widthTimer = setInterval(this.eventCB, 500);
+
         const page = this.getFromStorage(this.bookId);
         if (!page) {
           this.saveToStorage(this.bookId, Number(this.currentPageNumber));
@@ -144,18 +147,6 @@
           this.saveToStorage('fontSize', this.styleObject.fontSize);
         } else this.styleObject.fontSize = fontSize;
       },
-      saveToStorage(k, v) {
-        localStorage.setItem(k, v);
-      },
-      getFromStorage(k) {
-        if (process.client && localStorage) {
-          const result = localStorage.getItem(k);
-          if (result) {
-            return result;
-          }
-          return null;
-        }
-      },
 
       // Styles Togglers
       toggleTextAlign(e) {
@@ -165,6 +156,7 @@
       increaseFontSize() {
         const maxFontSize = Math.max.apply(null, Object.keys(fontSizeEnum));
         if (this.styleObject.fontSize !== `${maxFontSize}px`) {
+          this.widthTimer = setInterval(this.eventCB, 500);
           const nextSize = Object.values(fontSizeEnum)[Object.entries(fontSizeEnum)
             .findIndex(el => el[1] === this.styleObject.fontSize) + 1];
           this.styleObject = { ...this.styleObject, fontSize: nextSize };
@@ -174,6 +166,7 @@
       decreaseFontSize() {
         const minFontSize = Math.min.apply(null, Object.keys(fontSizeEnum));
         if (this.styleObject.fontSize !== `${minFontSize}px`) {
+          this.widthTimer = setInterval(this.eventCB, 500);
           const nextSize = Object.values(fontSizeEnum)[Object.entries(fontSizeEnum)
             .findIndex(el => el[1] === this.styleObject.fontSize) - 1];
           this.styleObject = { ...this.styleObject, fontSize: nextSize };
@@ -206,6 +199,18 @@
       // Helpers
       fontSizeNumeric(val) {
         return Number(val.replace('px', ''));
+      },
+      saveToStorage(k, v) {
+        localStorage.setItem(k, v);
+      },
+      getFromStorage(k) {
+        if (process.client && localStorage) {
+          const result = localStorage.getItem(k);
+          if (result) {
+            return result;
+          }
+          return null;
+        }
       },
     },
   };
@@ -241,7 +246,7 @@
   .reader-wrapper {
     word-break: break-word;
     height: 80vh;
-    width: 40vw;
+    width: 700px;
     column-fill: balance;
     column-span: all;
     overflow-x: hidden;
@@ -253,14 +258,14 @@
   @media (max-width: 960px) {
     .reader-wrapper {
       column-width: 80vw;
-      width: 80vw;
+      width: 500px;
     }
   }
 
   @media (max-width: 480px) {
     .reader-wrapper {
       column-width: 90vw;
-      width: 90vw;
+      width: 400px;
     }
   }
 </style>
