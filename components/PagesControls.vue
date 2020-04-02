@@ -3,16 +3,16 @@
     class="page-control"
   >
     <v-skeleton-loader
-      v-show="loading"
+      v-if="loading"
       width="180"
       height="48"
       type="list-item"
-      class="mx-auto"
+      class="mx-auto skeleton-loader"
     />
     <v-progress-circular
       v-show="updating"
       :width="3"
-      :size="20"
+      :size="18"
       indeterminate
       class="me-2"
       color="purple"
@@ -64,5 +64,8 @@
     display: flex;
     align-items: center;
     padding: 0 16px;
+  }
+  .skeleton-loader >>> .v-skeleton-loader__list-item {
+    padding-right: 0;
   }
 </style>

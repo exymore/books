@@ -1,7 +1,12 @@
 <template>
   <div>
+    <v-skeleton-loader
+      v-if="pagesCountLoading"
+      type="avatar"
+      class="mx-auto btn action-button-skeleton"
+    />
     <v-btn
-      v-if="!isMobile"
+      v-else-if="!isMobile"
       color="cyan lighten-4"
       fab
       depressed
@@ -24,6 +29,7 @@
     props: {
       icon: { type: String, default: '' },
       direction: { type: String, default: '' },
+      pagesCountLoading: { type: Boolean, default: false },
     },
     computed: {
       isMobile() {
@@ -41,24 +47,15 @@
 
 <style scoped>
   .btn:first-child {
-    margin-right: 48px;
+    margin-right: 48px !important;
+  }
+
+  .action-button-skeleton >>> .v-skeleton-loader__avatar {
+    height: 64px !important;
+    width: 64px !important;
   }
 
   .btn:last-child {
-    margin-left: 48px;
-  }
-
-  @media (max-width: 960px) {
-    .btn {
-      pointer-events: all;
-      z-index: 1000;
-      top: 0;
-      left: 0;
-      height: 100%;
-      width: 100%;
-      margin: 0 !important;
-      padding: 0 !important;
-      position: absolute;
-    }
+    margin-left: 48px !important;
   }
 </style>

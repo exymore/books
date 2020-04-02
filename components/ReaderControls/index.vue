@@ -3,8 +3,8 @@
     v-model="menu"
     transition="slide-x-transition"
     :close-on-content-click="false"
-    :nudge-width="200"
-    offset-x
+    :nudge-width="100"
+    offset-y
   >
     <template v-slot:activator="{ on }">
       <v-btn

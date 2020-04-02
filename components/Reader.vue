@@ -17,20 +17,27 @@
       <reader-action-button
         :icon="'mdi-chevron-left'"
         :direction="'prev'"
+        :pages-count-loading="pagesCountLoading"
         @clickEffect="clickEffect"
         @touchEffect="touchEffect"
+      />
+      <v-skeleton-loader
+        v-if="pagesCountLoading"
+        type="image"
+        class="mx-auto reader-skeleton"
       />
       <div
         ref="reader"
         v-touch:swipe.left="() => touchEffect('left')"
         v-touch:swipe.right="() => touchEffect('right')"
         :style="styleObject"
-        class="reader-wrapper times"
+        class="reader-wrapper"
         v-html="readerHtml"
       />
       <reader-action-button
         :icon="'mdi-chevron-right'"
         :direction="'next'"
+        :pages-count-loading="pagesCountLoading"
         @clickEffect="clickEffect"
         @touchEffect="touchEffect"
       />
@@ -116,8 +123,8 @@
     created() {
       this.debouncedNext = debounce(this.next, 500, { trailing: false });
       this.debouncedPrev = debounce(this.prev, 500, { trailing: false });
-      this.debouncedIncreaseFont = debounce(this._increaseFontSize, 1000, { trailing: false });
-      this.debouncedDecreaseFont = debounce(this._decreaseFontSize, 1000, { trailing: false });
+      this.debouncedIncreaseFont = debounce(this._increaseFontSize, 1500, { trailing: false });
+      this.debouncedDecreaseFont = debounce(this._decreaseFontSize, 1500, { trailing: false });
     },
     mounted() {
       this.configureNavigation();
@@ -278,15 +285,37 @@
     display: block;
   }
 
+  .reader-skeleton {
+    position: absolute;
+    z-index: 1;
+    height: calc(80vh + 8px);
+    width: 708px;
+  }
+
+  .reader-skeleton >>> .v-skeleton-loader__image {
+    height: calc(80vh + 8px);
+    background: #e0e0e0;
+  }
+
   .controls {
     display: flex;
     justify-content: space-between;
+  }
+
+  @media (max-width: 1200px) {
+    .reader-skeleton {
+      width: 600px;
+    }
   }
 
   @media (max-width: 960px) {
     .reader-wrapper {
       column-width: 80vw;
       width: 500px;
+    }
+
+    .reader-skeleton {
+      width: 520px;
     }
 
     .controls {
@@ -299,6 +328,16 @@
     .reader-wrapper {
       column-width: 90vw;
       width: 400px;
+    }
+
+    .reader-skeleton {
+      width: 360px;
+    }
+  }
+
+  @media (max-width: 400px) {
+    .reader-skeleton {
+      width: 320px;
     }
   }
 </style>
