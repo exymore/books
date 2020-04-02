@@ -9,8 +9,8 @@
     <template v-slot:activator="{ on }">
       <v-btn
         text
-        v-on="on"
         class="format-icon"
+        v-on="on"
       >
         <v-icon>
           mdi-format-letter-case-lower
@@ -44,8 +44,9 @@
 
 <style scoped>
   .format-icon {
-    height: 60px!important;
+    height: 60px !important;
   }
+
   .format-icon >>> .v-icon {
     font-size: 48px;
     color: #505050 !important;
@@ -65,8 +66,9 @@
 
   @media (max-width: 960px) {
     .format-icon {
-      height: 42px!important;
+      height: 42px !important;
     }
+
     .format-icon >>> .v-icon {
       font-size: 36px;
     }

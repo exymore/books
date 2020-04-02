@@ -1,10 +1,16 @@
 <template>
   <div>
-    <reader-controls
-      @toggleTextAlign="toggleTextAlign"
-      @increaseFontSize="increaseFontSize"
-      @decreaseFontSize="decreaseFontSize"
-    />
+    <div class="controls">
+      <reader-controls
+        @toggleTextAlign="toggleTextAlign"
+        @increaseFontSize="increaseFontSize"
+        @decreaseFontSize="decreaseFontSize"
+      />
+      <pages-controls
+        :current-page-number="currentPageNumber"
+        :pages-count="pagesCount"
+      />
+    </div>
     <div
       class="container"
     >
@@ -39,12 +45,14 @@
   import Vue2TouchEvents from 'vue2-touch-events';
   import ReaderControls from './ReaderControls/index';
   import { bgColorsEnum, fontsEnum, fontSizeEnum, textAlignEnum } from '../enums';
+  import PagesControls from './PagesControls';
 
   Vue.use(Vue2TouchEvents);
 
   export default {
     name: 'Reader',
     components: {
+      PagesControls,
       ReaderActionButton,
       ReaderControls,
     },
@@ -122,7 +130,6 @@
         if (rect.height > rect.width) newBookLength = rect.height;
         else newBookLength = rect.width;
 
-        console.log(newBookLength)
         if (this.bookWidth === newBookLength) {
           clearInterval(this.widthTimer);
           this.pagesCount = Math.round(this.bookWidth / (this.columnWidth + this.fontSizeNumeric(this.styleObject.fontSize)));
@@ -174,6 +181,7 @@
             .findIndex(el => el[1] === this.styleObject.fontSize) + 1];
           this.styleObject = { ...this.styleObject, fontSize: nextSize };
           this.saveToStorage('fontSize', nextSize);
+          this.$emit('fontSizeChanged');
         }
       },
       _decreaseFontSize() {
@@ -184,6 +192,7 @@
             .findIndex(el => el[1] === this.styleObject.fontSize) - 1];
           this.styleObject = { ...this.styleObject, fontSize: nextSize };
           this.saveToStorage('fontSize', nextSize);
+          this.$emit('fontSizeChanged');
         }
       },
 
@@ -269,10 +278,20 @@
     display: block;
   }
 
+  .controls {
+    display: flex;
+    justify-content: space-between;
+  }
+
   @media (max-width: 960px) {
     .reader-wrapper {
       column-width: 80vw;
       width: 500px;
+    }
+
+    .controls {
+      flex-direction: row;
+      justify-content: space-between;
     }
   }
 
