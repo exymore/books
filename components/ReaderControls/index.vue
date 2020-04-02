@@ -8,7 +8,8 @@
   >
     <template v-slot:activator="{ on }">
       <v-btn
-        text
+        depressed
+        color="grey lighten-3"
         class="format-icon"
         v-on="on"
       >
@@ -36,7 +37,6 @@
     name: 'ReaderControls',
     components: { FontSize, TextAlign },
     data: () => ({
-      showControls: true,
       menu: undefined,
     }),
   };

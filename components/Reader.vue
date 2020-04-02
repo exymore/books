@@ -87,12 +87,15 @@
       currentPageNumber: 1,
       pagesCount: 0,
       bookWidth: 0,
-      progress: 0,
+      INTERNAL_books_width_array: [],
 
       widthTimer: () => {
       },
     }),
     computed: {
+      progress() {
+        return this.pagesCount / this.currentPageNumber;
+      },
       screenSize() {
         return {
           width: document.documentElement.clientWidth,
@@ -129,25 +132,40 @@
     mounted() {
       this.configureNavigation();
       this.configureStyling();
+      this.widthTimer = setInterval(this.eventCB, 500);
     },
     methods: {
+      _INTERNAL_validate_width(newBookLength) {
+        this.INTERNAL_books_width_array = [...this.INTERNAL_books_width_array, newBookLength];
+        const necessaryIterations = 5;
+        let successIterations = 0;
+        const targetElement = this.INTERNAL_books_width_array[this.INTERNAL_books_width_array.length - 1];
+
+        for (let i of this.INTERNAL_books_width_array.reverse()) {
+          if (i === targetElement) {
+            successIterations++;
+          }
+        }
+        return successIterations === necessaryIterations;
+      },
       eventCB() {
         const rect = [...this.$refs.reader.children].find(el => (el.tagName === 'DIV' || el.tagName === 'div')).getBoundingClientRect();
         let newBookLength;
         if (rect.height > rect.width) newBookLength = rect.height;
         else newBookLength = rect.width;
 
-        if (this.bookWidth === newBookLength) {
+        if (this._INTERNAL_validate_width(newBookLength)) {
           clearInterval(this.widthTimer);
           this.pagesCount = Math.round(this.bookWidth / (this.columnWidth + this.fontSizeNumeric(this.styleObject.fontSize)));
           this.pagesCountLoading = false;
         } else this.bookWidth = newBookLength;
       },
+
       // Navigation
       configureNavigation() {
         this.el = this.$refs.reader;
-        this.columnWidth = this.el.offsetWidth;
-        this.widthTimer = setInterval(this.eventCB, 500);
+        this.columnWidth = this.el.getBoundingClientRect().width;
+        console.log(this.columnWidth)
 
         const page = this.getFromStorage(this.bookId);
         if (!page) {

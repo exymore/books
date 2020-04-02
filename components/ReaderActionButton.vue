@@ -1,7 +1,7 @@
 <template>
   <div>
     <v-skeleton-loader
-      v-if="pagesCountLoading"
+      v-if="pagesCountLoading && !isMobile"
       type="avatar"
       class="mx-auto btn action-button-skeleton"
     />
@@ -29,7 +29,7 @@
     props: {
       icon: { type: String, default: '' },
       direction: { type: String, default: '' },
-      pagesCountLoading: { type: Boolean, default: false },
+      pagesCountLoading: { type: Boolean, default: true },
     },
     computed: {
       isMobile() {

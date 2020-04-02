@@ -17,12 +17,53 @@
       class="me-2"
       color="purple"
     />
-    <span
+
+    <v-menu
       v-if="!loading"
-      class="font-weight-medium"
+      v-model="menu"
+      transition="slide-x-transition"
+      :close-on-content-click="false"
+      :nudge-width="200"
+      offset-y
     >
-      Страница {{ currentPageNumber }} из {{ pagesCount }}
-    </span>
+      <template v-slot:activator="{ on }">
+        <v-btn
+          class="format-icon"
+          color="grey lighten-3"
+          depressed
+          v-on="on"
+        >
+          <span
+            class="font-weight-medium"
+          >
+            Страница {{ currentPageNumber }} из {{ pagesCount }}
+          </span>
+        </v-btn>
+      </template>
+
+      <v-card>
+        <v-list>
+          <v-list-item>
+            <v-slider
+              v-model="slider"
+              height="100"
+              width="100"
+              track-color="grey"
+              persistent-hint
+              always-dirty
+              thumb-label="always"
+              step="1"
+              min="1"
+              :max="pagesCount"
+              @end="changePage"
+              @mouseup="changePage"
+            />
+          </v-list-item>
+
+          <v-divider />
+        </v-list>
+      </v-card>
+    </v-menu>
   </div>
 </template>
 
@@ -43,6 +84,8 @@
       return {
         loading: true,
         updating: false,
+        menu: undefined,
+        slider: 1,
       };
     },
     watch: {
@@ -52,9 +95,17 @@
           if (oldVal !== null) this.updating = false;
         },
       },
+      menu: function() {
+        this.slider = this.currentPageNumber;
+      },
     },
     created: function() {
       this.$parent.$on('fontSizeChanged', () => this.updating = true);
+    },
+    methods: {
+      changePage(e) {
+        console.log(e);
+      },
     },
   };
 </script>
@@ -65,6 +116,7 @@
     align-items: center;
     padding: 0 16px;
   }
+
   .skeleton-loader >>> .v-skeleton-loader__list-item {
     padding-right: 0;
   }
