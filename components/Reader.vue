@@ -93,9 +93,6 @@
       },
     }),
     computed: {
-      progress() {
-        return this.pagesCount / this.currentPageNumber;
-      },
       screenSize() {
         return {
           width: document.documentElement.clientWidth,
@@ -122,6 +119,14 @@
           });
         },
       },
+      pagesCount: {
+        handler(val, oldVal) {
+          if (oldVal) {
+            const prevProgress = this.currentPageNumber / oldVal;
+            this.currentPageNumber = Math.round(prevProgress * val);
+          }
+        },
+      },
     },
     created() {
       this.debouncedNext = debounce(this.next, 500, { trailing: false });
@@ -132,7 +137,7 @@
     mounted() {
       this.configureNavigation();
       this.configureStyling();
-      this.widthTimer = setInterval(this.eventCB, 500);
+      this.widthTimer = setInterval(this.eventCB, 50);
     },
     methods: {
       _INTERNAL_validate_width(newBookLength) {
@@ -141,8 +146,8 @@
         let successIterations = 0;
         const targetElement = this.INTERNAL_books_width_array[this.INTERNAL_books_width_array.length - 1];
 
-        for (let i of this.INTERNAL_books_width_array.reverse()) {
-          if (i === targetElement) {
+        for (let i of [...this.INTERNAL_books_width_array].reverse()) {
+          if (i === targetElement && successIterations < necessaryIterations) {
             successIterations++;
           }
         }
@@ -165,7 +170,6 @@
       configureNavigation() {
         this.el = this.$refs.reader;
         this.columnWidth = this.el.getBoundingClientRect().width;
-        console.log(this.columnWidth)
 
         const page = this.getFromStorage(this.bookId);
         if (!page) {
@@ -201,7 +205,7 @@
         const maxFontSize = Math.max.apply(null, Object.keys(fontSizeEnum));
         if (this.styleObject.fontSize !== `${maxFontSize}px`) {
 
-          this.widthTimer = setInterval(this.eventCB, 500);
+          this.widthTimer = setInterval(this.eventCB, 50);
           const nextSize = Object.values(fontSizeEnum)[Object.entries(fontSizeEnum)
             .findIndex(el => el[1] === this.styleObject.fontSize) + 1];
           this.styleObject = { ...this.styleObject, fontSize: nextSize };
@@ -212,7 +216,8 @@
       _decreaseFontSize() {
         const minFontSize = Math.min.apply(null, Object.keys(fontSizeEnum));
         if (this.styleObject.fontSize !== `${minFontSize}px`) {
-          this.widthTimer = setInterval(this.eventCB, 500);
+
+          this.widthTimer = setInterval(this.eventCB, 50);
           const nextSize = Object.values(fontSizeEnum)[Object.entries(fontSizeEnum)
             .findIndex(el => el[1] === this.styleObject.fontSize) - 1];
           this.styleObject = { ...this.styleObject, fontSize: nextSize };
@@ -349,7 +354,7 @@
     }
 
     .reader-skeleton {
-      width: 360px;
+      width: 420px;
     }
   }
 
