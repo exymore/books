@@ -21,9 +21,12 @@
 
     <v-card>
       <v-list>
-        <text-align v-on="$listeners" />
-        <v-divider />
-        <font-size v-on="$listeners" />
+        <text-align v-on="$listeners"/>
+        <v-divider/>
+        <font-size
+          :font-size-controls-to-block="fontSizeControlsToBlock"
+          v-on="$listeners"
+        />
       </v-list>
     </v-card>
   </v-menu>
@@ -32,13 +35,34 @@
 <script>
   import TextAlign from './TextAlign';
   import FontSize from './FontSize';
+  import { fontSizeEnum } from '../../enums';
+  import last from 'lodash/last';
+  import first from 'lodash/first';
 
   export default {
     name: 'ReaderControls',
     components: { FontSize, TextAlign },
+    props: {
+      isFontSizeUpdating: {
+        type: Boolean,
+        default: false,
+      },
+      fontSize: {
+        type: String,
+        default: fontSizeEnum['16'],
+      },
+    },
     data: () => ({
       menu: undefined,
     }),
+    computed: {
+      fontSizeControlsToBlock() {
+        if (this.isFontSizeUpdating) return [true, true];
+        if (this.fontSize === last(Object.values(fontSizeEnum))) return [false, true];
+        if (this.fontSize === first(Object.values(fontSizeEnum))) return [true, false];
+        return [false, false];
+      },
+    },
   };
 </script>
 

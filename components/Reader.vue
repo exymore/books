@@ -2,6 +2,8 @@
   <div>
     <div class="controls">
       <reader-controls
+        :font-size="styleObject.fontSize"
+        :is-font-size-updating="isFontSizeUpdating"
         @toggleTextAlign="toggleTextAlign"
         @increaseFontSize="increaseFontSize"
         @decreaseFontSize="decreaseFontSize"
@@ -9,6 +11,7 @@
       <pages-controls
         :current-page-number="currentPageNumber"
         :pages-count="pagesCount"
+        @updatedFontSize="onFontSizeUpdated"
       />
     </div>
     <div
@@ -87,7 +90,10 @@
       currentPageNumber: 1,
       pagesCount: 0,
       bookWidth: 0,
+      isFontSizeUpdating: false,
+
       INTERNAL_books_width_array: [],
+      INTERNAL_column_width_array: [],
 
       widthTimer: () => {
       },
@@ -123,7 +129,8 @@
         handler(val, oldVal) {
           if (oldVal) {
             const prevProgress = this.currentPageNumber / oldVal;
-            this.currentPageNumber = Math.round(prevProgress * val);
+            if (Math.floor(prevProgress * val) === 0) this.currentPageNumber = Math.round(prevProgress * val);
+            else this.currentPageNumber = Math.floor(prevProgress * val);
           }
         },
       },
@@ -131,8 +138,8 @@
     created() {
       this.debouncedNext = debounce(this.next, 500, { trailing: false });
       this.debouncedPrev = debounce(this.prev, 500, { trailing: false });
-      this.debouncedIncreaseFont = debounce(this._increaseFontSize, 1500, { trailing: false });
-      this.debouncedDecreaseFont = debounce(this._decreaseFontSize, 1500, { trailing: false });
+      this.debouncedIncreaseFont = debounce(this._increaseFontSize, 750, { trailing: false });
+      this.debouncedDecreaseFont = debounce(this._decreaseFontSize, 750, { trailing: false });
     },
     mounted() {
       this.configureNavigation();
@@ -140,14 +147,27 @@
       this.widthTimer = setInterval(this.eventCB, 50);
     },
     methods: {
-      _INTERNAL_validate_width(newBookLength) {
+      _INTERNAL_validate_book_width(newBookLength) {
         this.INTERNAL_books_width_array = [...this.INTERNAL_books_width_array, newBookLength];
         const necessaryIterations = 5;
         let successIterations = 0;
         const targetElement = this.INTERNAL_books_width_array[this.INTERNAL_books_width_array.length - 1];
 
-        for (let i of [...this.INTERNAL_books_width_array].reverse()) {
+        for (let i of [...this.INTERNAL_books_width_array].slice(-5)) {
           if (i === targetElement && successIterations < necessaryIterations) {
+            successIterations++;
+          }
+        }
+        return successIterations === necessaryIterations;
+      },
+      _INTERNAL_validate_column_width(columnWidth) {
+        this.INTERNAL_column_width_array = [...this.INTERNAL_column_width_array, columnWidth];
+        const necessaryIterations = 5;
+        let successIterations = 0;
+        const targetElement = this.INTERNAL_column_width_array[this.INTERNAL_column_width_array.length - 1];
+
+        for (let i of [...this.INTERNAL_column_width_array].slice(-5)) {
+          if (i !== 0 && i === targetElement && successIterations < necessaryIterations) {
             successIterations++;
           }
         }
@@ -159,7 +179,7 @@
         if (rect.height > rect.width) newBookLength = rect.height;
         else newBookLength = rect.width;
 
-        if (this._INTERNAL_validate_width(newBookLength)) {
+        if (this._INTERNAL_validate_book_width(newBookLength) && this._INTERNAL_validate_column_width(this.columnWidth)) {
           clearInterval(this.widthTimer);
           this.pagesCount = Math.round(this.bookWidth / (this.columnWidth + this.fontSizeNumeric(this.styleObject.fontSize)));
           this.pagesCountLoading = false;
@@ -211,6 +231,7 @@
           this.styleObject = { ...this.styleObject, fontSize: nextSize };
           this.saveToStorage('fontSize', nextSize);
           this.$emit('fontSizeChanged');
+          this.isFontSizeUpdating = true;
         }
       },
       _decreaseFontSize() {
@@ -223,7 +244,11 @@
           this.styleObject = { ...this.styleObject, fontSize: nextSize };
           this.saveToStorage('fontSize', nextSize);
           this.$emit('fontSizeChanged');
+          this.isFontSizeUpdating = true;
         }
+      },
+      onFontSizeUpdated() {
+        this.isFontSizeUpdating = false;
       },
 
       // Reader controls

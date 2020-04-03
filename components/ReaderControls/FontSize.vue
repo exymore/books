@@ -6,6 +6,7 @@
       <v-btn-toggle>
         <v-btn
           depressed
+          :disabled="isBlocked(0)"
           style="height: 36px"
           @click="decreaseFont"
         >
@@ -15,6 +16,7 @@
         </v-btn>
         <v-btn
           depressed
+          :disabled="isBlocked(1)"
           style="height: 36px"
           @click="increaseFont"
         >
@@ -30,12 +32,19 @@
 <script>
   export default {
     name: 'FontSize',
+    props: {
+      fontSizeControlsToBlock: Array,
+      default: () => [],
+    },
     methods: {
       increaseFont() {
         this.$emit('increaseFontSize');
       },
       decreaseFont() {
         this.$emit('decreaseFontSize');
+      },
+      isBlocked(num) {
+        return this.fontSizeControlsToBlock[num];
       },
     },
   };

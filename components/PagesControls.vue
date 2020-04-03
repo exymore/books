@@ -60,7 +60,7 @@
             />
           </v-list-item>
 
-          <v-divider />
+          <v-divider/>
         </v-list>
       </v-card>
     </v-menu>
@@ -92,7 +92,10 @@
       pagesCount: {
         handler(val, oldVal) {
           if (val !== 0) this.loading = false;
-          if (oldVal !== null) this.updating = false;
+          if (oldVal !== null) {
+            this.updating = false;
+            this.$emit('updatedFontSize');
+          }
         },
       },
       menu: function() {
