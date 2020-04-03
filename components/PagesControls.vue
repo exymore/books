@@ -80,14 +80,12 @@
         default: 0,
       },
     },
-    data: function() {
-      return {
-        loading: true,
-        updating: false,
-        menu: undefined,
-        slider: 1,
-      };
-    },
+    data: () => ({
+      loading: true,
+      updating: false,
+      menu: undefined,
+      slider: 1,
+    }),
     watch: {
       pagesCount: {
         handler(val, oldVal) {

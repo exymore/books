@@ -49,7 +49,10 @@
 </template>
 
 <script>
-  import debounce from 'lodash/throttle';
+  import throttle from 'lodash/throttle';
+  import round from 'lodash/round';
+  import floor from 'lodash/floor';
+  import ceil from 'lodash/ceil';
   import ReaderActionButton from './ReaderActionButton';
   import Vue from 'vue';
   import Vue2TouchEvents from 'vue2-touch-events';
@@ -113,15 +116,14 @@
     watch: {
       currentPageNumber: {
         handler(val, oldVal) {
+          console.log(this.styleObject.fontSize);
           this.saveToStorage(this.bookId, Number(this.currentPageNumber));
-          const isNext = val > oldVal;
-          const scrollLength = isNext ?
-            this.el.scrollLeft + ((this.columnWidth + this.fontSizeNumeric(this.styleObject.fontSize)) * (val - oldVal)) :
-            this.el.scrollLeft - ((this.columnWidth + this.fontSizeNumeric(this.styleObject.fontSize)) * (oldVal - val));
+
+          const newScrollLengthForCurrentPage = (this.columnWidth + this.fontSizeNumeric(this.styleObject.fontSize)) * val;
           this.el.scroll({
             top: 0,
-            left: scrollLength,
-            behavior: Math.abs(val - oldVal) > 1 ? 'auto' : 'smooth',
+            left: newScrollLengthForCurrentPage,
+            behavior: 'auto',
           });
         },
       },
@@ -129,17 +131,22 @@
         handler(val, oldVal) {
           if (oldVal) {
             const prevProgress = this.currentPageNumber / oldVal;
-            if (Math.floor(prevProgress * val) === 0) this.currentPageNumber = Math.round(prevProgress * val);
-            else this.currentPageNumber = Math.floor(prevProgress * val);
+            const flooredDivergence = Math.abs(floor(prevProgress * val) / val - prevProgress);
+            const ceiledDivergence = Math.abs(ceil(prevProgress * val) / val - prevProgress);
+
+            const minDivergence = Math.min(ceiledDivergence, flooredDivergence);
+
+            if (minDivergence === flooredDivergence) this.currentPageNumber = floor(prevProgress * val);
+            if (minDivergence === ceiledDivergence) this.currentPageNumber = ceil(prevProgress * val);
           }
         },
       },
     },
     created() {
-      this.debouncedNext = debounce(this.next, 500, { trailing: false });
-      this.debouncedPrev = debounce(this.prev, 500, { trailing: false });
-      this.debouncedIncreaseFont = debounce(this._increaseFontSize, 750, { trailing: false });
-      this.debouncedDecreaseFont = debounce(this._decreaseFontSize, 750, { trailing: false });
+      this.throttledNext = throttle(this.next, 500, { trailing: false });
+      this.throttledPrev = throttle(this.prev, 500, { trailing: false });
+      this.throttledIncreaseFont = throttle(this._increaseFontSize, 750, { trailing: false });
+      this.throttledDecreaseFont = throttle(this._decreaseFontSize, 750, { trailing: false });
     },
     mounted() {
       this.configureNavigation();
@@ -181,7 +188,7 @@
 
         if (this._INTERNAL_validate_book_width(newBookLength) && this._INTERNAL_validate_column_width(this.columnWidth)) {
           clearInterval(this.widthTimer);
-          this.pagesCount = Math.round(this.bookWidth / (this.columnWidth + this.fontSizeNumeric(this.styleObject.fontSize)));
+          this.pagesCount = round(this.bookWidth / (this.columnWidth + this.fontSizeNumeric(this.styleObject.fontSize)));
           this.pagesCountLoading = false;
         } else this.bookWidth = newBookLength;
       },
@@ -216,10 +223,10 @@
         this.saveToStorage('textAlign', textAlignEnum[Object.keys(textAlignEnum)[e]]);
       },
       increaseFontSize() {
-        this.debouncedIncreaseFont();
+        this.throttledIncreaseFont();
       },
       decreaseFontSize() {
-        this.debouncedDecreaseFont();
+        this.throttledDecreaseFont();
       },
       _increaseFontSize() {
         const maxFontSize = Math.max.apply(null, Object.keys(fontSizeEnum));
@@ -264,13 +271,13 @@
         }
       },
       clickEffect(e) {
-        if (e === 'next') this.debouncedNext();
-        else if (e === 'prev') this.debouncedPrev();
+        if (e === 'next') this.throttledNext();
+        else if (e === 'prev') this.throttledPrev();
       },
       touchEffect(e) {
         if (this.isMobile) {
-          if (e === 'left') this.debouncedNext();
-          else if (e === 'right') this.debouncedPrev();
+          if (e === 'left') this.throttledNext();
+          else if (e === 'right') this.throttledPrev();
         }
       },
 
