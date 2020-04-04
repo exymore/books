@@ -12,6 +12,7 @@
         :current-page-number="currentPageNumber"
         :pages-count="pagesCount"
         @updatedFontSize="onFontSizeUpdated"
+        @pageChanged="onPageChanged"
       />
     </div>
     <div
@@ -116,7 +117,6 @@
     watch: {
       currentPageNumber: {
         handler(val, oldVal) {
-          console.log(this.styleObject.fontSize);
           this.saveToStorage(this.bookId, Number(this.currentPageNumber));
 
           const newScrollLengthForCurrentPage = (this.columnWidth + this.fontSizeNumeric(this.styleObject.fontSize)) * val;
@@ -156,11 +156,11 @@
     methods: {
       _INTERNAL_validate_book_width(newBookLength) {
         this.INTERNAL_books_width_array = [...this.INTERNAL_books_width_array, newBookLength];
-        const necessaryIterations = 5;
+        const necessaryIterations = 12;
         let successIterations = 0;
         const targetElement = this.INTERNAL_books_width_array[this.INTERNAL_books_width_array.length - 1];
 
-        for (let i of [...this.INTERNAL_books_width_array].slice(-5)) {
+        for (let i of [...this.INTERNAL_books_width_array].slice(-necessaryIterations)) {
           if (i === targetElement && successIterations < necessaryIterations) {
             successIterations++;
           }
@@ -169,11 +169,11 @@
       },
       _INTERNAL_validate_column_width(columnWidth) {
         this.INTERNAL_column_width_array = [...this.INTERNAL_column_width_array, columnWidth];
-        const necessaryIterations = 5;
+        const necessaryIterations = 12;
         let successIterations = 0;
         const targetElement = this.INTERNAL_column_width_array[this.INTERNAL_column_width_array.length - 1];
 
-        for (let i of [...this.INTERNAL_column_width_array].slice(-5)) {
+        for (let i of [...this.INTERNAL_column_width_array].slice(-necessaryIterations)) {
           if (i !== 0 && i === targetElement && successIterations < necessaryIterations) {
             successIterations++;
           }
@@ -181,27 +181,27 @@
         return successIterations === necessaryIterations;
       },
       eventCB() {
-        const rect = [...this.$refs.reader.children].find(el => (el.tagName === 'DIV' || el.tagName === 'div')).getBoundingClientRect();
-        let newBookLength;
-        if (rect.height > rect.width) newBookLength = rect.height;
-        else newBookLength = rect.width;
+        const rect = this.el.scrollWidth;
 
-        if (this._INTERNAL_validate_book_width(newBookLength) && this._INTERNAL_validate_column_width(this.columnWidth)) {
+        if (this._INTERNAL_validate_book_width(rect) && this._INTERNAL_validate_column_width(this.columnWidth)) {
           clearInterval(this.widthTimer);
           this.pagesCount = round(this.bookWidth / (this.columnWidth + this.fontSizeNumeric(this.styleObject.fontSize)));
           this.pagesCountLoading = false;
-        } else this.bookWidth = newBookLength;
+        } else this.bookWidth = rect;
       },
 
       // Navigation
       configureNavigation() {
         this.el = this.$refs.reader;
-        this.columnWidth = this.el.getBoundingClientRect().width;
+        this.columnWidth = this.el.offsetWidth;
 
         const page = this.getFromStorage(this.bookId);
         if (!page) {
           this.saveToStorage(this.bookId, Number(this.currentPageNumber));
         } else this.currentPageNumber = Number(page);
+      },
+      onPageChanged(e) {
+        this.currentPageNumber = e;
       },
 
       // Styles

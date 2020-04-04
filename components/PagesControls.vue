@@ -55,8 +55,6 @@
               step="1"
               min="1"
               :max="pagesCount"
-              @end="changePage"
-              @mouseup="changePage"
             />
           </v-list-item>
 
@@ -99,15 +97,14 @@
       menu: function() {
         this.slider = this.currentPageNumber;
       },
+      slider: function() {
+        this.$emit('pageChanged', this.slider);
+      },
     },
     created: function() {
       this.$parent.$on('fontSizeChanged', () => this.updating = true);
     },
-    methods: {
-      changePage(e) {
-        console.log(e);
-      },
-    },
+    methods: {},
   };
 </script>
 
