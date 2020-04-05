@@ -300,6 +300,9 @@
 
 <style scoped>
   .container {
+    padding: 12px!important;
+    margin-right: auto!important;
+    margin-left: auto!important;
     width: 100%;
     display: flex;
     flex-direction: row;
