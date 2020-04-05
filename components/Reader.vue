@@ -149,7 +149,6 @@
       this.throttledDecreaseFont = throttle(this._decreaseFontSize, 750, { trailing: false });
     },
     mounted() {
-      this.configureNavigation();
       this.configureStyling();
       this.widthTimer = setInterval(this.eventCB, 50);
     },
@@ -181,6 +180,8 @@
         return successIterations === necessaryIterations;
       },
       eventCB() {
+        this.el = this.$refs.reader;
+        this.columnWidth = this.el.offsetWidth;
         const rect = this.el.scrollWidth;
 
         if (this._INTERNAL_validate_book_width(rect) && this._INTERNAL_validate_column_width(this.columnWidth)) {
@@ -196,10 +197,6 @@
       },
 
       // Navigation
-      configureNavigation() {
-        this.el = this.$refs.reader;
-        this.columnWidth = this.el.offsetWidth;
-      },
       onPageChanged(e) {
         this.currentPageNumber = e;
       },
@@ -348,8 +345,8 @@
   }
 
   .reader-skeleton >>> .v-skeleton-loader__image {
-    height: calc(80vh + 8px);
-    background: #e0e0e0;
+    height: calc(80vh + 8px)!important;
+    background: #e0e0e0!important;
   }
 
   .controls {
