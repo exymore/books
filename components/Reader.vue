@@ -26,7 +26,7 @@
         @touchEffect="touchEffect"
       />
       <v-skeleton-loader
-        v-if="pagesCountLoading"
+        v-if="pagesCountLoading || isFontSizeUpdating"
         type="image"
         class="mx-auto reader-skeleton"
       />
@@ -119,7 +119,7 @@
         handler(val, oldVal) {
           this.saveToStorage(this.bookId, Number(this.currentPageNumber));
 
-          const newScrollLengthForCurrentPage = (this.columnWidth + this.fontSizeNumeric(this.styleObject.fontSize)) * val;
+          const newScrollLengthForCurrentPage = ((this.columnWidth + this.fontSizeNumeric(this.styleObject.fontSize)) * (val - 1));
           this.el.scroll({
             top: 0,
             left: newScrollLengthForCurrentPage,
@@ -186,6 +186,11 @@
         if (this._INTERNAL_validate_book_width(rect) && this._INTERNAL_validate_column_width(this.columnWidth)) {
           clearInterval(this.widthTimer);
           this.pagesCount = round(this.bookWidth / (this.columnWidth + this.fontSizeNumeric(this.styleObject.fontSize)));
+          const page = this.getFromStorage(this.bookId);
+          if (!page) {
+            this.saveToStorage(this.bookId, Number(this.currentPageNumber));
+          } else this.currentPageNumber = Number(page);
+
           this.pagesCountLoading = false;
         } else this.bookWidth = rect;
       },
@@ -194,11 +199,6 @@
       configureNavigation() {
         this.el = this.$refs.reader;
         this.columnWidth = this.el.offsetWidth;
-
-        const page = this.getFromStorage(this.bookId);
-        if (!page) {
-          this.saveToStorage(this.bookId, Number(this.currentPageNumber));
-        } else this.currentPageNumber = Number(page);
       },
       onPageChanged(e) {
         this.currentPageNumber = e;
@@ -232,26 +232,26 @@
         const maxFontSize = Math.max.apply(null, Object.keys(fontSizeEnum));
         if (this.styleObject.fontSize !== `${maxFontSize}px`) {
 
+          this.isFontSizeUpdating = true;
           this.widthTimer = setInterval(this.eventCB, 50);
           const nextSize = Object.values(fontSizeEnum)[Object.entries(fontSizeEnum)
             .findIndex(el => el[1] === this.styleObject.fontSize) + 1];
           this.styleObject = { ...this.styleObject, fontSize: nextSize };
           this.saveToStorage('fontSize', nextSize);
           this.$emit('fontSizeChanged');
-          this.isFontSizeUpdating = true;
         }
       },
       _decreaseFontSize() {
         const minFontSize = Math.min.apply(null, Object.keys(fontSizeEnum));
         if (this.styleObject.fontSize !== `${minFontSize}px`) {
 
+          this.isFontSizeUpdating = true;
           this.widthTimer = setInterval(this.eventCB, 50);
           const nextSize = Object.values(fontSizeEnum)[Object.entries(fontSizeEnum)
             .findIndex(el => el[1] === this.styleObject.fontSize) - 1];
           this.styleObject = { ...this.styleObject, fontSize: nextSize };
           this.saveToStorage('fontSize', nextSize);
           this.$emit('fontSizeChanged');
-          this.isFontSizeUpdating = true;
         }
       },
       onFontSizeUpdated() {
@@ -386,7 +386,7 @@
     }
 
     .reader-skeleton {
-      width: 420px;
+      width: 400px;
     }
   }
 
