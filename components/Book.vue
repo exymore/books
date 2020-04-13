@@ -122,7 +122,7 @@
         if (navigator && navigator.share && window && window.location && window.location.href) {
           navigator.share({
             title: 'Books Learn',
-            url: `${window.location.href}/books/${this.bookID}`,
+            url: `${window.location.href}books/${this.bookID}`,
           }).catch(console.error);
         }
       },
