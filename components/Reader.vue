@@ -55,6 +55,7 @@
 
 <script>
   import throttle from 'lodash/throttle';
+  import debounce from 'lodash/debounce';
   import round from 'lodash/round';
   import floor from 'lodash/floor';
   import ceil from 'lodash/ceil';
@@ -103,6 +104,7 @@
       isFontSizeUpdating: false,
 
       selection: '',
+      isMouseDown: false,
 
       INTERNAL_books_width_array: [],
       INTERNAL_column_width_array: [],
@@ -120,6 +122,9 @@
       isMobile() {
         if (process.client) return this.screenSize.width <= 960;
         return false;
+      },
+      isMobileBrowser() {
+        return (typeof window.orientation !== 'undefined') || (navigator.userAgent.indexOf('IEMobile') !== -1);
       },
     },
     watch: {
@@ -155,22 +160,33 @@
       this.throttledPrev = throttle(this.prev, 500, { trailing: false });
       this.throttledIncreaseFont = throttle(this._increaseFontSize, 750, { trailing: false });
       this.throttledDecreaseFont = throttle(this._decreaseFontSize, 750, { trailing: false });
+      this.debouncedSetSelection = debounce(this.injectSelectionTranslate, this.isMobileBrowser ? 500 : 0);
     },
     mounted() {
       this.configureStyling();
       this.widthTimer = setInterval(this.eventCB, 50);
-      window.addEventListener('mouseup', () => {
-        this.injectSelectionTranslate();
-      });
+      if (!this.isMobileBrowser) {
+        document.addEventListener('mousedown', () => {
+          this.isMouseDown = true;
+        });
+        document.addEventListener('mouseup', () => {
+          this.isMouseDown = false;
+          this.debouncedSetSelection();
+        });
+      }
       document.addEventListener('selectionchange', () => {
-        this.clearSelection();
+        this.debouncedSetSelection();
       });
     },
     destroyed() {
       clearInterval(this.widthTimer);
-      window.removeEventListener('mouseup', () => {
-      });
-      window.removeEventListener('selectionchange', () => {
+      if (!this.isMobileBrowser) {
+        document.removeEventListener('mousedown', () => {
+        });
+        document.removeEventListener('mouseup', () => {
+        });
+      }
+      document.removeEventListener('selectionchange', () => {
       });
     },
     methods: {
@@ -318,16 +334,14 @@
 
       // Selection
       injectSelectionTranslate() {
-        const s = window.getSelection();
-        const selection = s.toString().trim();
-        if (selection !== '' && selection !== null && selection !== undefined && selection.length > 0 && selection.length <= 400) {
-          this.selection = selection;
-        }
-      },
-      clearSelection() {
-        const selection = window.getSelection().toString().trim();
-        if (selection === '' || selection === null || selection === undefined) {
-          this.selection = '';
+        if (!this.isMouseDown || this.isMobileBrowser) {
+          const s = window.getSelection();
+          const selection = s.toString().trim();
+          if (selection !== '' && selection !== null && selection !== undefined && selection.length > 0 && selection.length <= 400) {
+            this.selection = selection;
+          } else if (selection === '' || selection === null || selection === undefined) {
+            this.selection = '';
+          }
         }
       },
     },

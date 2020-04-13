@@ -6,13 +6,13 @@
     <v-sheet
       class="pl-5 pa-2 text-left"
     >
-      <div class="my-3">
+      <div class="my-3 text">
         {{ selection }}
       </div>
       <hr>
       <div
         v-if="!error"
-        class="my-3"
+        class="my-3 text"
       >
         {{ translated }}
       </div>
@@ -61,5 +61,8 @@
 </script>
 
 <style scoped>
-
+  .text {
+    font-size: 1.5rem!important;
+    font-weight: 500;
+  }
 </style>
