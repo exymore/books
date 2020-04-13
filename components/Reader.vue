@@ -1,5 +1,9 @@
 <template>
   <div>
+    <TranslationPopUp
+      v-if="selection"
+      :selection="selection"
+    />
     <div class="controls">
       <reader-controls
         :font-size="styleObject.fontSize"
@@ -58,6 +62,7 @@
   import Vue from 'vue';
   import Vue2TouchEvents from 'vue2-touch-events';
   import ReaderControls from './ReaderControls/index';
+  import TranslationPopUp from './TranslationPopUp';
   import { bgColorsEnum, fontsEnum, fontSizeEnum, textAlignEnum } from '../enums';
   import PagesControls from './PagesControls';
 
@@ -69,6 +74,7 @@
       PagesControls,
       ReaderActionButton,
       ReaderControls,
+      TranslationPopUp,
     },
     props: {
       readerHtml: {
@@ -95,6 +101,8 @@
       pagesCount: 0,
       bookWidth: 0,
       isFontSizeUpdating: false,
+
+      selection: '',
 
       INTERNAL_books_width_array: [],
       INTERNAL_column_width_array: [],
@@ -151,6 +159,19 @@
     mounted() {
       this.configureStyling();
       this.widthTimer = setInterval(this.eventCB, 50);
+      window.addEventListener('mouseup', () => {
+        this.injectSelectionTranslate();
+      });
+      document.addEventListener('selectionchange', () => {
+        this.clearSelection();
+      });
+    },
+    destroyed() {
+      clearInterval(this.widthTimer);
+      window.removeEventListener('mouseup', () => {
+      });
+      window.removeEventListener('selectionchange', () => {
+      });
     },
     methods: {
       _INTERNAL_validate_book_width(newBookLength) {
@@ -294,15 +315,30 @@
           return null;
         }
       },
+
+      // Selection
+      injectSelectionTranslate() {
+        const s = window.getSelection();
+        const selection = s.toString().trim();
+        if (selection !== '' && selection !== null && selection !== undefined && selection.length > 0 && selection.length <= 400) {
+          this.selection = selection;
+        }
+      },
+      clearSelection() {
+        const selection = window.getSelection().toString().trim();
+        if (selection === '' || selection === null || selection === undefined) {
+          this.selection = '';
+        }
+      },
     },
   };
 </script>
 
 <style scoped>
   .container {
-    padding: 12px!important;
-    margin-right: auto!important;
-    margin-left: auto!important;
+    padding: 12px !important;
+    margin-right: auto !important;
+    margin-left: auto !important;
     width: 100%;
     display: flex;
     flex-direction: row;
@@ -348,8 +384,8 @@
   }
 
   .reader-skeleton >>> .v-skeleton-loader__image {
-    height: calc(80vh + 8px)!important;
-    background: #e0e0e0!important;
+    height: calc(80vh + 8px) !important;
+    background: #e0e0e0 !important;
   }
 
   .controls {

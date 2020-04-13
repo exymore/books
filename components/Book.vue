@@ -1,74 +1,79 @@
 <template>
-  <v-card
-    max-width="320"
-    class="card"
-    :color="cardColor || 'cyan darken-2'"
+  <v-hover
+    v-slot:default="{ hover }"
   >
-    <nuxt-link :to="readBookUrl">
-      <div class="bg-wrapper">
-        <v-img
-          class="blurred"
-          height="300px"
-          :src="coverUrl"
-        />
-        <v-img
-          class="white--text align-end"
-          height="200px"
-          :src="coverUrl"
-          contain
-        />
-      </div>
-    </nuxt-link>
+    <v-card
+      :elevation="hover ? 8 : 0"
+      max-width="320"
+      class="card"
+      :color="cardColor || 'cyan darken-2'"
+    >
+      <nuxt-link :to="readBookUrl">
+        <div class="bg-wrapper">
+          <v-img
+            class="blurred"
+            height="300px"
+            :src="coverUrl"
+          />
+          <v-img
+            class="white--text align-end"
+            height="200px"
+            :src="coverUrl"
+            contain
+          />
+        </div>
+      </nuxt-link>
 
-    <v-card-title class="title white--text">
-      {{ bookName }}
-    </v-card-title>
-    <v-expand-transition>
-      <div v-show="!showFullDescription">
-        <v-card-subtitle class="desc white--text">
-          {{ truncateDescription(bookDescription) }}
-        </v-card-subtitle>
-      </div>
-    </v-expand-transition>
+      <v-card-title class="title white--text">
+        {{ bookName }}
+      </v-card-title>
+      <v-expand-transition>
+        <div v-show="!showFullDescription">
+          <v-card-subtitle class="desc white--text">
+            {{ truncateDescription(bookDescription) }}
+          </v-card-subtitle>
+        </div>
+      </v-expand-transition>
 
-    <v-expand-transition>
-      <div v-show="showFullDescription">
-        <v-card-text class="desc white--text">
-          {{ bookDescription }}
-        </v-card-text>
-      </div>
-    </v-expand-transition>
+      <v-expand-transition>
+        <div v-show="showFullDescription">
+          <v-card-text class="desc white--text">
+            {{ bookDescription }}
+          </v-card-text>
+        </div>
+      </v-expand-transition>
 
-    <v-card-actions>
-      <v-btn
-        text
-        color="white"
-        :to="readBookUrl"
-      >
-        Читать
-      </v-btn>
-
-      <v-btn
-        color="white"
-        text
-        @click="handleShare"
-      >
-        Поделиться
-      </v-btn>
-      <v-spacer />
-      <v-btn
-        v-if="isFullDescriptionRequired"
-        icon
-        @click="showFullDescription = !showFullDescription"
-      >
-        <v-icon
-          class="white--text"
+      <v-card-actions>
+        <v-btn
+          text
+          color="white"
+          :to="readBookUrl"
         >
-          {{ showFullDescription ? 'mdi-chevron-up' : 'mdi-chevron-down' }}
-        </v-icon>
-      </v-btn>
-    </v-card-actions>
-  </v-card>
+          Читать
+        </v-btn>
+
+        <v-btn
+          color="white"
+          text
+          @click="handleShare"
+        >
+          Поделиться
+        </v-btn>
+        <v-spacer/>
+        <v-btn
+          v-if="isFullDescriptionRequired"
+          icon
+          @click="showFullDescription = !showFullDescription"
+        >
+          <v-icon
+            class="white--text"
+          >
+            {{ showFullDescription ? 'mdi-chevron-up' : 'mdi-chevron-down' }}
+          </v-icon>
+        </v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-hover>
 </template>
 
 <script>
