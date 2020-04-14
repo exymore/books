@@ -160,26 +160,41 @@
       this.throttledPrev = throttle(this.prev, 500, { trailing: false });
       this.throttledIncreaseFont = throttle(this._increaseFontSize, 750, { trailing: false });
       this.throttledDecreaseFont = throttle(this._decreaseFontSize, 750, { trailing: false });
-      this.debouncedSetSelection = debounce(this.injectSelectionTranslate, this.isMobileBrowser ? 500 : 0);
     },
     mounted() {
       this.configureStyling();
       this.widthTimer = setInterval(this.eventCB, 50);
+      if (this.isMobileBrowser) {
+        document.addEventListener('touchstart', () => {
+          this.isMouseDown = true;
+        });
+        document.addEventListener('touchend', () => {
+          this.isMouseDown = false;
+          this.injectSelectionTranslate();
+        });
+      }
       if (!this.isMobileBrowser) {
         document.addEventListener('mousedown', () => {
           this.isMouseDown = true;
         });
         document.addEventListener('mouseup', () => {
           this.isMouseDown = false;
-          this.debouncedSetSelection();
+          this.injectSelectionTranslate();
         });
       }
+
       document.addEventListener('selectionchange', () => {
-        this.debouncedSetSelection();
+        this.injectSelectionTranslate();
       });
     },
     destroyed() {
       clearInterval(this.widthTimer);
+      if (this.isMobileBrowser) {
+        document.removeEventListener('touchstart', () => {
+        });
+        document.removeEventListener('touchend', () => {
+        });
+      }
       if (!this.isMobileBrowser) {
         document.removeEventListener('mousedown', () => {
         });
@@ -334,7 +349,7 @@
 
       // Selection
       injectSelectionTranslate() {
-        if (!this.isMouseDown || this.isMobileBrowser) {
+        if (!this.isMouseDown) {
           const s = window.getSelection();
           const selection = s.toString().trim();
           if (selection !== '' && selection !== null && selection !== undefined && selection.length > 0 && selection.length <= 400) {
