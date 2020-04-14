@@ -1,29 +1,43 @@
 <template>
-  <v-bottom-sheet
-    v-model="sheet"
-    inset
-  >
-    <v-sheet
-      class="pl-5 pa-2 text-left"
+  <div>
+    <v-btn
+      depressed
+      color="grey lighten-3"
+      v-if="!expanded"
+      class="translate-button"
+      @click="expanded = true"
     >
-      <div class="my-3 text">
-        {{ selection }}
-      </div>
-      <hr>
-      <div
-        v-if="!error"
-        class="my-3 text"
+      <v-icon>
+        mdi-translate
+      </v-icon>
+    </v-btn>
+    <v-bottom-sheet
+      v-else
+      v-model="sheet"
+      inset
+    >
+      <v-sheet
+        class="pl-5 pa-2 text-left"
       >
-        {{ translated }}
-      </div>
-      <div
-        v-if="error"
-        class="my-3"
-      >
-        Произошла ошибка или закончилась квота на перевод!
-      </div>
-    </v-sheet>
-  </v-bottom-sheet>
+        <div class="my-3 text">
+          {{ selection }}
+        </div>
+        <hr>
+        <v-progress-circular
+          v-if="!translated"
+          indeterminate
+          class="my-3 pl-5 pa-2"
+          color="purple"
+        />
+        <div
+          v-else
+          class="my-3 text"
+        >
+          {{ error? `Произошла ошибка или закончилась квота на перевод!` : translated }}
+        </div>
+      </v-sheet>
+    </v-bottom-sheet>
+  </div>
 </template>
 
 <script>
@@ -36,14 +50,25 @@
         type: String,
         default: '',
       },
+      isMobileBrowser: {
+        type: Boolean,
+        default: false,
+      },
     },
     data: () => ({
       sheet: true,
       error: false,
       translated: '',
+      expanded: false,
     }),
-    async mounted() {
-      this.translated = await this.translate();
+    watch: {
+      expanded: {
+        async handler(val) {
+          if (val) {
+            this.translated = await this.translate();
+          }
+        },
+      },
     },
     methods: {
       async translate() {
@@ -61,8 +86,39 @@
 </script>
 
 <style scoped>
+  .v-sheet {
+    border-top-left-radius: 16px;
+    border-top-right-radius: 16px;
+  }
+
+  .translate-button >>> .v-icon {
+    font-size: 48px;
+    color: #505050 !important;
+  }
+
+  .translate-button {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-width: 64px;
+    height: 60px !important;
+    margin-left: 1rem;
+
+    transition: background-color 0.25s ease;
+  }
+
   .text {
-    font-size: 1.5rem!important;
+    font-size: 1.5rem !important;
     font-weight: 500;
+  }
+
+  @media (max-width: 960px) {
+    .translate-button {
+      height: 42px !important;
+    }
+
+    .translate-button >>> .v-icon {
+      font-size: 36px;
+    }
   }
 </style>

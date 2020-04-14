@@ -34,9 +34,14 @@
           v-on="on"
         >
           <span
-            class="font-weight-medium"
+            class="desk font-weight-medium"
           >
             Страница {{ currentPageNumber }} из {{ pagesCount }}
+          </span>
+          <span
+            class="mob font-weight-medium"
+          >
+            <v-icon class="book-icon">mdi-book-open-page-variant</v-icon> {{ currentPageNumber }}/{{ pagesCount }}
           </span>
         </v-btn>
       </template>
@@ -109,6 +114,15 @@
 </script>
 
 <style scoped>
+  .book-icon {
+    font-size: 20px;
+    margin-right: 8px;
+  }
+
+  .mob {
+    display: none;
+  }
+
   .page-control {
     display: flex;
     align-items: center;
@@ -118,4 +132,22 @@
   .skeleton-loader >>> .v-skeleton-loader__list-item {
     padding-right: 0;
   }
+
+  @media (max-width: 960px) {
+    .desk {
+      display: none;
+    }
+
+    .mob {
+      display: inline-block;
+    }
+  }
+
+  @media (max-width: 360px) {
+    .book-icon {
+      font-size: 16px;
+      margin-right: 4px;
+    }
+  }
+
 </style>

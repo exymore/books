@@ -1,17 +1,20 @@
 <template>
   <div>
-    <TranslationPopUp
-      v-if="selection"
-      :selection="selection"
-    />
     <div class="controls">
-      <reader-controls
-        :font-size="styleObject.fontSize"
-        :is-font-size-updating="isFontSizeUpdating"
-        @toggleTextAlign="toggleTextAlign"
-        @increaseFontSize="increaseFontSize"
-        @decreaseFontSize="decreaseFontSize"
-      />
+      <div class="group-control">
+        <reader-controls
+          :font-size="styleObject.fontSize"
+          :is-font-size-updating="isFontSizeUpdating"
+          @toggleTextAlign="toggleTextAlign"
+          @increaseFontSize="increaseFontSize"
+          @decreaseFontSize="decreaseFontSize"
+        />
+        <TranslationPopUp
+          v-if="selection"
+          :selection="selection"
+          :is-mobile-browser="isMobileBrowser"
+        />
+      </div>
       <pages-controls
         :current-page-number="currentPageNumber"
         :pages-count="pagesCount"
@@ -38,9 +41,9 @@
         ref="reader"
         v-touch:swipe.left="() => touchEffect('left')"
         v-touch:swipe.right="() => touchEffect('right')"
+        v-dompurify-html="readerHtml"
         :style="styleObject"
         class="reader-wrapper"
-        v-dompurify-html="readerHtml"
       />
       <reader-action-button
         :icon="'mdi-chevron-right'"
@@ -55,7 +58,6 @@
 
 <script>
   import throttle from 'lodash/throttle';
-  import debounce from 'lodash/debounce';
   import round from 'lodash/round';
   import floor from 'lodash/floor';
   import ceil from 'lodash/ceil';
@@ -366,6 +368,11 @@
 </script>
 
 <style scoped>
+  .group-control {
+    display: flex;
+    flex-direction: row;
+  }
+
   .container {
     padding: 12px !important;
     margin-right: auto !important;
