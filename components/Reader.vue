@@ -40,7 +40,7 @@
         v-touch:swipe.right="() => touchEffect('right')"
         :style="styleObject"
         class="reader-wrapper"
-        v-html="readerHtml"
+        v-dompurify-html="readerHtml"
       />
       <reader-action-button
         :icon="'mdi-chevron-right'"
@@ -66,7 +66,9 @@
   import TranslationPopUp from './TranslationPopUp';
   import { bgColorsEnum, fontsEnum, fontSizeEnum, textAlignEnum } from '../enums';
   import PagesControls from './PagesControls';
+  import VueDOMPurifyHTML from 'vue-dompurify-html';
 
+  Vue.use(VueDOMPurifyHTML);
   Vue.use(Vue2TouchEvents);
 
   export default {
